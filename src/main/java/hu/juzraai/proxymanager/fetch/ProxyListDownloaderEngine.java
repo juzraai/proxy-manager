@@ -23,6 +23,7 @@ public class ProxyListDownloaderEngine {
 		crawlers.add(new HideMyIpDotComPLD());
 		crawlers.add(new InCloakDotComPLD());
 		crawlers.add(new IpAdressDotComPLD()); // ~12/50
+		crawlers.add(new ProxyDotMooDotJpPLD());
 	}
 
 	public Set<String> fetchProxyList() {

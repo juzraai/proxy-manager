@@ -13,9 +13,19 @@ import java.util.Set;
  * @author Zsolt Jurányi
  */
 public class App {
+	// TODO cli
+	// --stdout: print out working proxies
+	// --anon: print out only anon proxies
+
+	// TODO log should be redirected to file, at least when using --stdout
+
 	// TODO crawlers
+	// http://www.idcloak.com/proxylist/free-proxy-ip-list.html
+	// http://www.proxylist.ro/anonymous-proxy-list-filtered-by-privacy-free-proxy-servers.html
+	// http://www.proxynova.com/proxy-server-list/
+	// https://www.torvpn.com/en/proxy-list
+	// http://gatherproxy.com/proxylist/anonymity/?t=Elite
 	// http://proxylist.hidemyass.com - obfuscated
-	// http://proxy.moo.jp/?u=90&page=1 - need URLDecode
 
 	// TODO Proxy.notWorkingSince
 
@@ -27,8 +37,9 @@ public class App {
 	// Writer: write into db
 
 	// TODO site stat
-	// query db
-	// per site: proxy count, working count, anon count, common count
+	// query db, generate ProxyListInfo
+
+	// TODO crawling: do not fetch a proxy site more than one in a minute! (ProxyListInfo.lastFetched)
 
 	// TODO checkfornull, nonnull
 
@@ -67,7 +78,7 @@ public class App {
 				}
 			}
 		}
-		
+
 		L.info("Read {} unique proxies from stdin", proxies.size());
 		return proxies;
 	}
