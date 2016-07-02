@@ -1,5 +1,6 @@
 package hu.juzraai.proxymanager.fetch;
 
+import hu.juzraai.proxymanager.util.ProxyValidator;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,7 +30,7 @@ public class InCloakDotComPLD extends ProxyListDownloaderTask {
 				String ip = tds.get(0).ownText();
 				String port = tds.get(1).ownText();
 				String proxy = ip + ":" + port;
-				if (proxy.matches("\\d{1,3}(\\.\\d{1,3}){3}:\\d{2,5}")) {
+				if (ProxyValidator.isValidIpPort(proxy)) {
 					proxies.add(proxy);
 				}
 			}

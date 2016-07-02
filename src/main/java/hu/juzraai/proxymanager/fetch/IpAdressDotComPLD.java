@@ -1,5 +1,6 @@
 package hu.juzraai.proxymanager.fetch;
 
+import hu.juzraai.proxymanager.util.ProxyValidator;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,7 +24,7 @@ public class IpAdressDotComPLD extends ProxyListDownloaderTask {
 			Elements tds = tr.select("td");
 			if (!tds.isEmpty()) {
 				String proxy = tds.get(0).ownText();
-				if (proxy.matches("\\d{1,3}(\\.\\d{1,3}){3}:\\d{2,5}")) {
+				if (ProxyValidator.isValidIpPort(proxy)) {
 					proxies.add(proxy);
 				}
 			}

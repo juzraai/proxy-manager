@@ -37,7 +37,7 @@ public class HideMyIpDotComPLD extends ProxyListDownloaderTask {
 							String proxy = m.group("ip") + ":" + m.group("port");
 							proxies.add(proxy);
 						}
-						if (100 <= proxies.size()) { // fresh one are at the beginning of 4K list
+						if (100 <= proxies.size()) { // fresh ones are at the beginning of 4K list
 							break;
 						}
 					}

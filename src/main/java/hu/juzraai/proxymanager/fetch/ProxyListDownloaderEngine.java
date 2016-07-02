@@ -28,7 +28,7 @@ public class ProxyListDownloaderEngine {
 	public Set<String> fetchProxyList() {
 		Set<String> proxies = new HashSet<>();
 
-		L.info("Starting crawlers...");
+		L.info("Starting crawlers");
 		ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
 		Map<String, Future<Set<String>>> futures = new HashMap<String, Future<Set<String>>>();
 		for (ProxyListDownloaderTask crawler : crawlers) {
@@ -51,8 +51,6 @@ public class ProxyListDownloaderEngine {
 				// TODO fetch proxy source info -> update dates -> store
 			}
 		} // crawlers
-
-		// TODO grab+update/create proxy test info
 
 		L.info("Got {} unique proxies", proxies.size());
 		return proxies;

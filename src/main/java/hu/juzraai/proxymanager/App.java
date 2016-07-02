@@ -1,10 +1,12 @@
 package hu.juzraai.proxymanager;
 
 import hu.juzraai.proxymanager.fetch.ProxyListDownloaderEngine;
+import hu.juzraai.proxymanager.util.ProxyValidator;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.util.HashSet;
+import java.util.Scanner;
 import java.util.Set;
 
 /**
@@ -54,8 +56,20 @@ public class App {
 	}
 
 	private Set<String> readFromStdIn() {
-		// TODO test and store ip:port list from stdin
-		return null;
+		Set<String> proxies = new HashSet<>();
+
+		L.info("Reading proxies from stdin (press Ctrl+D to stop)");
+		try (Scanner s = new Scanner(System.in)) {
+			while (s.hasNextLine()) {
+				String proxy = s.nextLine();
+				if (ProxyValidator.isValidIpPort(proxy)) {
+					proxies.add(proxy);
+				}
+			}
+		}
+		
+		L.info("Read {} unique proxies from stdin", proxies.size());
+		return proxies;
 	}
 
 	private void start() {
@@ -65,5 +79,8 @@ public class App {
 		} else {
 			proxies.addAll(readFromCrawlers());
 		}
+		// TODO grab+update/create proxy test info
+
+		// TODO run easy batch: test ALL proxies in db
 	}
 }
