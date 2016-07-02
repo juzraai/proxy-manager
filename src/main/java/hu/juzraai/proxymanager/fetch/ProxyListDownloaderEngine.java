@@ -1,5 +1,6 @@
 package hu.juzraai.proxymanager.fetch;
 
+import hu.juzraai.proxymanager.data.ProxyDatabase;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -17,6 +18,7 @@ public class ProxyListDownloaderEngine {
 	private static final int THREAD_COUNT = 10;
 
 	private final List<ProxyListDownloaderTask> crawlers = new ArrayList<ProxyListDownloaderTask>();
+	private final ProxyDatabase db;
 
 	{
 		crawlers.add(new FreeProxyListsDotComPLD());
@@ -24,6 +26,10 @@ public class ProxyListDownloaderEngine {
 		crawlers.add(new InCloakDotComPLD());
 		crawlers.add(new IpAdressDotComPLD()); // ~12/50
 		crawlers.add(new ProxyDotMooDotJpPLD());
+	}
+
+	public ProxyListDownloaderEngine(ProxyDatabase db) {
+		this.db = db;
 	}
 
 	public Set<String> fetchProxyList() {

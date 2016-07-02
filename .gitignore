@@ -6,3 +6,6 @@ tasks.xml
 
 # Binaries
 target/
+
+# Project specific
+proxies.db

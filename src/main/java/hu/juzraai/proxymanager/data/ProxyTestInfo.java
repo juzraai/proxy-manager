@@ -1,17 +1,27 @@
 package hu.juzraai.proxymanager.data;
 
-import java.util.Date;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+import hu.juzraai.toolbox.data.Identifiable;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author Zsolt Jurányi
  */
-public class ProxyTestInfo {
+@DatabaseTable(tableName = "proxy_test")
+public class ProxyTestInfo implements Identifiable<String> {
 
+	@DatabaseField(id = true)
 	private String ipPort;
-	private boolean working;
-	private boolean anon;
-	private Date lastChecked;
-	private Date lastUsed;
+	@DatabaseField
+	private Boolean working;
+	@DatabaseField
+	private Boolean anon;
+	@DatabaseField
+	private Long lastChecked;
+	@DatabaseField
+	private Long lastUsed;
 
 	public ProxyTestInfo() {
 	}
@@ -24,6 +34,20 @@ public class ProxyTestInfo {
 		this(ip + ":" + Integer.toString(port));
 	}
 
+	public Boolean getAnon() {
+		return anon;
+	}
+
+	public void setAnon(Boolean anon) {
+		this.anon = anon;
+	}
+
+	@Nonnull
+	@Override
+	public String getId() {
+		return ipPort;
+	}
+
 	public String getIpPort() {
 		return ipPort;
 	}
@@ -32,40 +56,32 @@ public class ProxyTestInfo {
 		this.ipPort = ipPort;
 	}
 
-	public Date getLastChecked() {
+	public Long getLastChecked() {
 		return lastChecked;
 	}
 
-	public void setLastChecked(Date lastChecked) {
+	public void setLastChecked(Long lastChecked) {
 		this.lastChecked = lastChecked;
 	}
 
-	public Date getLastUsed() {
+	public Long getLastUsed() {
 		return lastUsed;
 	}
 
-	public void setLastUsed(Date lastUsed) {
+	public void setLastUsed(Long lastUsed) {
 		this.lastUsed = lastUsed;
+	}
+
+	public Boolean getWorking() {
+		return working;
+	}
+
+	public void setWorking(Boolean working) {
+		this.working = working;
 	}
 
 	public String ip() {
 		return null == ipPort ? null : ipPort.split(":")[0];
-	}
-
-	public boolean isAnon() {
-		return anon;
-	}
-
-	public void setAnon(boolean anon) {
-		this.anon = anon;
-	}
-
-	public boolean isWorking() {
-		return working;
-	}
-
-	public void setWorking(boolean working) {
-		this.working = working;
 	}
 
 	public int port() {
