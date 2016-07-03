@@ -1,12 +1,16 @@
 package hu.juzraai.proxymanager.fetch;
 
+import hu.juzraai.proxymanager.util.ProxyValidator;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -34,6 +38,22 @@ public abstract class ProxyListDownloaderTask implements Callable<Set<String>> {
 				.execute();
 		cookies.putAll(r.cookies());
 		return r.parse();
+	}
+
+	protected Set<String> parseProxiesFromTable(Document d, String trSelector, int ipTdIndex, int portTdIndex) {
+		Set<String> proxies = new HashSet<>();
+		for (Element tr : d.select(trSelector)) {
+			Elements tds = tr.select("td");
+			if (Math.max(ipTdIndex, portTdIndex) < tds.size()) {
+				String ip = tds.get(ipTdIndex).text();
+				String port = tds.get(portTdIndex).text();
+				String proxy = String.format("%s:%s", ip, port);
+				if (ProxyValidator.isValidIpPort(proxy)) {
+					proxies.add(proxy);
+				}
+			}
+		}
+		return proxies;
 	}
 
 }

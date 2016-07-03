@@ -7,11 +7,13 @@
 ## Features
 
 * downloads IP:PORT HTTP proxy lists from
-    * http://www.freeproxylists.com/anon.php
-    * https://www.hide-my-ip.com/proxylist.shtml
-    * https://incloak.com/proxy-list/
-    * http://www.ip-adress.com/proxy_list/?k=time&d=desc
-    * http://proxy.moo.jp/?u=90
+    * freeproxylists.com - http://www.freeproxylists.com/anon.php
+    * hide-my-ip.com - https://www.hide-my-ip.com/proxylist.shtml
+    * idcloak.com - http://www.idcloak.com/proxylist/free-proxy-ip-list.html
+    * incloak.com - https://incloak.com/proxy-list/
+    * ip-adress.com - http://www.ip-adress.com/proxy_list/?k=time&d=desc
+    * proxy.moo.jp - http://proxy.moo.jp/?u=90
+    * proxynova.com - http://www.proxynova.com/proxy-server-list/
 * CLI - you can use it as a stand-alone tool
 * API - you can use it as a library
 

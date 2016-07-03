@@ -25,7 +25,11 @@ public class ProxyDotMooDotJpPLD extends ProxyListDownloaderTask {
 		Set<String> proxies = new HashSet<>();
 
 		L.info("Starting");
-		getDocument("http://proxy.moo.jp/"); // need cookies > it needs Accept-Language
+
+		// get cookies (Accept-Language header is needed for this!)
+		getDocument("http://proxy.moo.jp/");
+
+		// go thru pages
 		int page = 1;
 		boolean hasNextPage = true;
 		do {

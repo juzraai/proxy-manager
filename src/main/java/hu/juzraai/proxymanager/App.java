@@ -30,12 +30,10 @@ public class App {
 	// org.apache.log4j.Logger.getRootLogger().removeAppender("stdout");
 
 	// TODO crawlers
-	// http://www.idcloak.com/proxylist/free-proxy-ip-list.html
-	// http://www.proxylist.ro/anonymous-proxy-list-filtered-by-privacy-free-proxy-servers.html
-	// http://www.proxynova.com/proxy-server-list/
 	// https://www.torvpn.com/en/proxy-list
 	// http://gatherproxy.com/proxylist/anonymity/?t=Elite
 	// http://proxylist.hidemyass.com - obfuscated
+	// http://www.proxylist.ro/anonymous-proxy-list-filtered-by-privacy-free-proxy-servers.html
 
 	// TODO Proxy.notWorkingSince
 
@@ -107,12 +105,7 @@ public class App {
 		} else {
 			proxies.addAll(readFromCrawlers());
 		}
-
-		try {
-			db.storeNewProxies(proxies);
-		} catch (SQLException e) {
-			L.error("Couldn't store new proxies", e);
-		}
+		db.storeNewProxies(proxies);
 
 		// TODO run easy batch: test ALL proxies in db
 	}

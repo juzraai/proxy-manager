@@ -10,18 +10,18 @@ import java.util.Set;
 /**
  * @author Zsolt Jurányi
  */
-public class InCloakDotComPLD extends ProxyListDownloaderTask {
+public class ProxyNovaDotComPLD extends ProxyListDownloaderTask {
 
-	private static final Logger L = LoggerFactory.getLogger(InCloakDotComPLD.class);
+	private static final Logger L = LoggerFactory.getLogger(ProxyNovaDotComPLD.class);
 
 	@Override
 	public Set<String> call() throws Exception {
 		Set<String> proxies = new HashSet<>();
 
 		L.info("Starting");
-		String url = "https://incloak.com/proxy-list/";
+		String url = "http://www.proxynova.com/proxy-server-list/";
 		Document d = getDocument(url);
-		proxies.addAll(parseProxiesFromTable(d, "table.proxy__t tr", 0, 1));
+		proxies.addAll(parseProxiesFromTable(d, "table#tbl_proxy_list tr", 0, 1));
 
 		L.info("Found {} proxies", proxies.size());
 		return proxies;

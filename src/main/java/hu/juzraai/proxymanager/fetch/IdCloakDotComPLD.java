@@ -10,18 +10,18 @@ import java.util.Set;
 /**
  * @author Zsolt Jurányi
  */
-public class InCloakDotComPLD extends ProxyListDownloaderTask {
+public class IdCloakDotComPLD extends ProxyListDownloaderTask {
 
-	private static final Logger L = LoggerFactory.getLogger(InCloakDotComPLD.class);
+	private static final Logger L = LoggerFactory.getLogger(IdCloakDotComPLD.class);
 
 	@Override
 	public Set<String> call() throws Exception {
 		Set<String> proxies = new HashSet<>();
 
 		L.info("Starting");
-		String url = "https://incloak.com/proxy-list/";
+		String url = "http://www.idcloak.com/proxylist/free-proxy-ip-list.html";
 		Document d = getDocument(url);
-		proxies.addAll(parseProxiesFromTable(d, "table.proxy__t tr", 0, 1));
+		proxies.addAll(parseProxiesFromTable(d, "div.proxy_table tr", 7, 6));
 
 		L.info("Found {} proxies", proxies.size());
 		return proxies;

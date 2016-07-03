@@ -23,9 +23,11 @@ public class ProxyListDownloaderEngine {
 	{
 		crawlers.add(new FreeProxyListsDotComPLD());
 		crawlers.add(new HideMyIpDotComPLD());
+		crawlers.add(new IdCloakDotComPLD());
 		crawlers.add(new InCloakDotComPLD());
 		crawlers.add(new IpAdressDotComPLD()); // ~12/50
 		crawlers.add(new ProxyDotMooDotJpPLD());
+		crawlers.add(new ProxyNovaDotComPLD());
 	}
 
 	public ProxyListDownloaderEngine(ProxyDatabase db) {
@@ -36,6 +38,7 @@ public class ProxyListDownloaderEngine {
 		Set<String> proxies = new HashSet<>();
 
 		L.info("Starting crawlers");
+		Date timestamp = new Date();
 		ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_COUNT);
 		Map<String, Future<Set<String>>> futures = new HashMap<String, Future<Set<String>>>();
 		for (ProxyListDownloaderTask crawler : crawlers) {
@@ -43,6 +46,7 @@ public class ProxyListDownloaderEngine {
 			futures.put(crawler.getClass().getName(), threadPool.submit(crawler));
 		}
 		threadPool.shutdown();
+
 
 		for (String crawlerName : futures.keySet()) {
 			Future<Set<String>> future = futures.get(crawlerName);
@@ -54,9 +58,7 @@ public class ProxyListDownloaderEngine {
 			} catch (Exception e) {
 				L.warn("Couldn't get future object of crawler " + crawlerName + ": ", e);
 			}
-			for (String proxy : currentProxies) {
-				// TODO fetch proxy source info -> update dates -> store
-			}
+			db.storeProxySourceInfo(currentProxies, crawlerName, timestamp);
 		} // crawlers
 
 		L.info("Got {} unique proxies", proxies.size());
