@@ -6,16 +6,30 @@
 
 ## Features
 
-* downloads IP:PORT HTTP proxy lists from
-    * freeproxylists.com - http://www.freeproxylists.com/anon.php
-    * hide-my-ip.com - https://www.hide-my-ip.com/proxylist.shtml
-    * idcloak.com - http://www.idcloak.com/proxylist/free-proxy-ip-list.html
-    * incloak.com - https://incloak.com/proxy-list/
-    * ip-adress.com - http://www.ip-adress.com/proxy_list/?k=time&d=desc
-    * proxy.moo.jp - http://proxy.moo.jp/?u=90
-    * proxynova.com - http://www.proxynova.com/proxy-server-list/
-* CLI - you can use it as a stand-alone tool
-* API - you can use it as a library
+* downloads IP:PORT HTTP proxy lists from **8 sites**
+* stores proxy source information: crawler name (includes site name), date of first and last fetch
+* stores all data in a single **SQLite database file**
+* you can use it as a **stand-alone** tool
+* you can use it as a **library**
+
+
+
+## Crawled proxy lists
+
+Site | Proxy count
+-----|------------:
+[freeproxylists.com](http://www.freeproxylists.com/anon.php) | 107
+[gatherproxy.com](http://gatherproxy.com/proxylist/anonymity/?t=Elite) | 25
+[hide-my-ip.com](https://www.hide-my-ip.com/proxylist.shtml) | *(limited to)* 100
+[idcloak.com](http://www.idcloak.com/proxylist/free-proxy-ip-list.html) | ~ 90
+[incloak.com](https://incloak.com/proxy-list/) | 64
+[ip-adress.com](http://www.ip-adress.com/proxy_list/?k=time&d=desc) | 50
+[proxy.moo.jp](http://proxy.moo.jp/?u=90) | ~ 290
+[proxynova.com](http://www.proxynova.com/proxy-server-list/) | 35
+**Total** | **~ 760**
+**Unique** | **~ 710**
+
+According to my tests there are an average of **10 new proxy comes in each minute**.
 
 
 

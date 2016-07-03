@@ -22,6 +22,7 @@ public class ProxyListDownloaderEngine {
 
 	{
 		crawlers.add(new FreeProxyListsDotComPLD());
+		crawlers.add(new GatherProxyDotComPLD());
 		crawlers.add(new HideMyIpDotComPLD());
 		crawlers.add(new IdCloakDotComPLD());
 		crawlers.add(new InCloakDotComPLD());

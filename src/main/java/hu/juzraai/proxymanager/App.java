@@ -22,23 +22,27 @@ public class App {
 	// TODO SQLite filename can be modified via CLI arg?
 
 	// TODO cli
-	// --quick: skip download & test
-	// --stdout: print out working proxies - or should it be automatic?
+	// MAIN TASK: fetches proxy lists, tests all proxies, prints queried working proxies from db
+	// --stdin: read from stdin instead of crawlers (DONE)
+	// --quick: skip download & test - only query
 	// --anon: print out only anon proxies
 
-	// TODO log should be redirected to file, at least when using --stdout
+	// --idle:<SECONDS>: print out only proxies that are idle for at least SECONDS seconds
+	// --mark:<PROXY>: marks proxy as used at now()
+	// hmm... should we manage lastUsed??? shouldn't it be managed by user?
+
+	// TODO log should be redirected to file in main() - log4j can stay
 	// org.apache.log4j.Logger.getRootLogger().removeAppender("stdout");
 
 	// TODO crawlers
-	// https://www.torvpn.com/en/proxy-list
-	// http://gatherproxy.com/proxylist/anonymity/?t=Elite
 	// http://proxylist.hidemyass.com - obfuscated
 	// http://www.proxylist.ro/anonymous-proxy-list-filtered-by-privacy-free-proxy-servers.html
+	// https://www.torvpn.com/en/proxy-list - image!
 
 	// TODO Proxy.notWorkingSince
 
 	// TODO easy batch (why? why not :D)
-	// RecordReader: read stdin->ProxyTest / read db->ProxyTest
+	// RecordReader: read db->ProxyTest
 	// Filter: filter freshly checked
 	// Filter: long time not working (notWorkingSince > 24h)
 	// Proc: test, update test info in model
