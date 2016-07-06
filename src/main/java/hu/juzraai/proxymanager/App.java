@@ -18,26 +18,7 @@ import java.util.Set;
  */
 public class App {
 
-	// TODO db - file-based SQLite
-	// TODO SQLite filename can be modified via CLI arg?
-
-	// TODO cli
-	// MAIN TASK: fetches proxy lists, tests all proxies, prints queried working proxies from db
-	// --stdin: read from stdin instead of crawlers (DONE)
-	// --quick: skip download & test - only query
-	// --anon: print out only anon proxies
-
-	// --idle:<SECONDS>: print out only proxies that are idle for at least SECONDS seconds
-	// --mark:<PROXY>: marks proxy as used at now()
-	// hmm... should we manage lastUsed??? shouldn't it be managed by user?
-
-	// TODO log should be redirected to file in main() - log4j can stay
-	// org.apache.log4j.Logger.getRootLogger().removeAppender("stdout");
-
-	// TODO crawlers
-	// http://proxylist.hidemyass.com - obfuscated
-	// http://www.proxylist.ro/anonymous-proxy-list-filtered-by-privacy-free-proxy-servers.html
-	// https://www.torvpn.com/en/proxy-list - image!
+	private static final Logger L = LoggerFactory.getLogger(App.class);
 
 	// TODO Proxy.notWorkingSince
 
@@ -55,9 +36,6 @@ public class App {
 	// TODO crawling: do not fetch a proxy site more than one in a minute! (ProxyListInfo.lastFetched)
 
 	// TODO checkfornull, nonnull
-
-	private static final Logger L = LoggerFactory.getLogger(App.class);
-
 	private final boolean readFromStdIn;
 	private final ProxyDatabase db;
 
@@ -78,7 +56,6 @@ public class App {
 		ProxyDatabase db = ProxyDatabase.build(dbFile);
 		new App(readFromStdIn, db).start();
 	}
-
 
 	private Set<String> readFromCrawlers() {
 		ProxyListDownloaderEngine e = new ProxyListDownloaderEngine(db);
@@ -113,6 +90,5 @@ public class App {
 
 		// TODO run easy batch: test ALL proxies in db
 	}
-
 
 }
