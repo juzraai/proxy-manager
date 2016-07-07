@@ -3,64 +3,63 @@ package hu.juzraai.proxymanager.test;
 import hu.juzraai.proxymanager.data.ProxyTestInfo;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.jsoup.Connection;
+import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.Date;
 
 import static org.jsoup.Connection.Method.GET;
-import static org.jsoup.Connection.Response;
 
 /**
  * @author Zsolt Jurányi
  */
-public class ProxyTester {
+public abstract class ProxyTester {
 
 	private static final Logger L = LoggerFactory.getLogger(ProxyTester.class);
-	private static final int TRIES = 2;
-	private static final String TESTER_PAGE_URL = "http://www.proxyserverprivacy.com/adv-free-proxy-detector.shtml";
 	private static final int TIMEOUT = 60 * 1000;
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
+	private static int DEFAULT_RETRY_COUNT = 2;
+
+	protected void configureConnection(Connection c) {
+		c.method(GET).timeout(TIMEOUT).userAgent(USER_AGENT);
+	}
+
+	public int getRetries() {
+		return DEFAULT_RETRY_COUNT;
+	}
 
 	protected Response getTestPage(ProxyTestInfo proxy) {
-		Connection c = Jsoup.connect(TESTER_PAGE_URL).method(GET).timeout(TIMEOUT).userAgent(USER_AGENT);
+		Connection c = Jsoup.connect(getTestPageUrl());
 		if (null != proxy) {
 			c.proxy(proxy.ip(), proxy.port());
 		}
+		configureConnection(c);
 		try {
 			return c.execute();
 		} catch (IOException e) {
-			L.trace("Failed to fetch test page using proxy: {}:{}, error: {}", proxy.ip(), proxy.port(), e.getMessage());
+			L.trace("{} - Failed to fetch test page using proxy: {}:{}, error: {}", this.getClass().getSimpleName(), proxy.ip(), proxy.port(), e.getMessage());
 			return null;
 		}
 	}
 
-	protected Boolean parseIfAnon(ProxyTestInfo proxy, Response r) {
-		Boolean result = null;
-		try {
-			Document d = r.parse();
-			Element e = d.select("h5").first().nextElementSibling();
-			result = "You do not use proxy".equalsIgnoreCase(e.text().trim());
-			L.trace("Anonimity check for {} proxy: {}", proxy.getId(), result);
-		} catch (Exception e) {
-			L.trace("Failed to parse test page when using proxy: " + proxy.getId(), e);
-		}
-		return result;
-	}
+	public abstract String getTestPageUrl();
+
+	protected abstract Boolean parseIfAnon(Response r); // null means not working
 
 	public void test(ProxyTestInfo proxy) {
 		L.info("Testing proxy: {}", proxy.getId());
 		Response r = null;
 
-		int tries = TRIES;
+		int tries = getRetries();
 		boolean working = false;
 		while (0 < tries-- && !working) {
+			L.trace("{} - Try #{} of proxy: {}", this.getClass().getSimpleName(), getRetries() - tries, proxy.getId());
 			r = getTestPage(proxy);
 			if (null != r) {
-				Boolean anon = parseIfAnon(proxy, r);
+				Boolean anon = parseIfAnon(r);
+				L.trace("{} - Anonimity check for {} proxy: {}", this.getClass().getSimpleName(), proxy.getId(), anon);
 				if (null != r) {
 					working = true;
 					proxy.setWorking(true);
@@ -71,21 +70,20 @@ public class ProxyTester {
 		}
 
 		if (!working) {
-			L.debug("Test of proxy {} failed {} times, checking test site w/o proxy", proxy.getId(), TRIES);
+			L.debug("{} - Test of proxy {} failed {} times, checking test site w/o proxy", this.getClass().getSimpleName(), proxy.getId(), getRetries());
 			boolean workingWithoutProxy = false;
 			r = getTestPage(null);
 			if (null != r) {
-				workingWithoutProxy = null != parseIfAnon(null, r);
+				workingWithoutProxy = null != parseIfAnon(r);
 			}
 			if (workingWithoutProxy) {
-				L.debug("Test page is available so the proxy was wrong.");
+				L.debug("{} - Test page is available so the proxy was wrong.", this.getClass().getSimpleName());
 				proxy.setWorking(false);
 				proxy.setAnon(false);
 				proxy.setLastChecked(new Date().getTime());
 			} else {
-				L.error("Test page is unavailable or internet connection is broken");
+				L.error("{} - Test page is unavailable or internet connection is broken", this.getClass().getSimpleName());
 			}
 		}
 	}
-
 }

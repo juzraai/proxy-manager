@@ -1,5 +1,9 @@
 package hu.juzraai.proxymanager;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+import hu.juzraai.proxymanager.cli.GetCommand;
+import hu.juzraai.proxymanager.cli.StatCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
 import hu.juzraai.proxymanager.fetch.ProxyListDownloaderEngine;
 import hu.juzraai.proxymanager.util.ProxyValidator;
@@ -7,7 +11,6 @@ import hu.juzraai.toolbox.log.LoggerFactory;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Scanner;
@@ -47,14 +50,43 @@ public class App {
 	public static void main(String[] args) throws SQLException {
 		org.apache.log4j.Logger.getLogger("hu.juzraai.toolbox").setLevel(Level.WARN);
 		org.apache.log4j.Logger.getLogger("com.j256.ormlite").setLevel(Level.WARN);
-		boolean readFromStdIn = false;
-		File dbFile = null;
-		for (String arg : args) {
-			readFromStdIn = readFromStdIn || "--stdin".equalsIgnoreCase(arg);
-			// TODO override dbFile
+
+		JCommander jc = new JCommander();
+		GetCommand get = new GetCommand();
+		StatCommand stat = new StatCommand();
+		jc.addCommand(get);
+		jc.addCommand(stat);
+		if (0 == args.length) {
+			jc.usage();
+		} else {
+			try {
+				jc.parse(args);
+				String cmd = jc.getParsedCommand();
+				if ("get".equalsIgnoreCase(cmd)) {
+					// TODO
+					// build ProxyDatabase
+					// pass GetCommand and ProxyDatabase to engine builder
+					// start engine
+					// close ProxyDatabase
+					// TODO or pdb should be handled inside engine? maybe...
+				} else if ("stat".equalsIgnoreCase(cmd)) {
+					// TODO
+				}
+			} catch (ParameterException e) {
+				System.out.println("ERROR: " + e.getMessage() + "\n");
+				jc.setProgramName("java -jar proxy-manager-VERSION.jar");
+				jc.usage();
+			}
 		}
-		ProxyDatabase db = ProxyDatabase.build(dbFile);
-		new App(readFromStdIn, db).start();
+
+//		boolean readFromStdIn = false;
+//		File dbFile = null;
+//		for (String arg : args) {
+//			readFromStdIn = readFromStdIn || "--stdin".equalsIgnoreCase(arg);
+//			// TODO override dbFile
+//		}
+//		ProxyDatabase db = ProxyDatabase.build(dbFile);
+//		new App(readFromStdIn, db).start();
 	}
 
 	private Set<String> readFromCrawlers() {

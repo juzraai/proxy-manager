@@ -48,3 +48,12 @@ Accepted arguments:
 First, add **Proxy Manager** as dependency from [JitPack.io](https://jitpack.io/#juzraai/toolbox). Follow the link to get information on how to do this, click on the green *"Get it"* button besides the latest version.
 
 *(code samples)*
+
+
+## Contribute
+
+You can contribute to this project by:
+
+* adding fresh and refreshing proxy lists to [#1](https://github.com/juzraai/proxy-manager/issues/1) as comment
+* adding proxy list downloaders which extend [ProxyListDownloaderTask](https://github.com/juzraai/proxy-manager/blob/master/src/main/java/hu/juzraai/proxymanager/fetch/ProxyListDownloaderTask.java) via pull request
+* providing feedback about bugs or ideas by creating new [issues](https://github.com/juzraai/proxy-manager/issues/)
