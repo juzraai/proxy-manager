@@ -2,7 +2,9 @@ package hu.juzraai.proxymanager;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
+import hu.juzraai.proxymanager.batch.ProxyEngine;
 import hu.juzraai.proxymanager.cli.GetCommand;
+import hu.juzraai.proxymanager.cli.MainParameters;
 import hu.juzraai.proxymanager.cli.StatCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
 import hu.juzraai.proxymanager.fetch.ProxyListDownloaderEngine;
@@ -11,7 +13,7 @@ import hu.juzraai.toolbox.log.LoggerFactory;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 
-import java.sql.SQLException;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
@@ -26,7 +28,7 @@ public class App {
 	// TODO Proxy.notWorkingSince
 
 	// TODO easy batch (why? why not :D)
-	// RecordReader: read db->ProxyTest
+	// RecordReader: reader db->ProxyTest
 	// Filter: filter freshly checked
 	// Filter: long time not working (notWorkingSince > 24h)
 	// Proc: test, update test info in model
@@ -47,36 +49,36 @@ public class App {
 		this.db = db;
 	}
 
-	public static void main(String[] args) throws SQLException {
+	public static void main(String[] args) throws Exception {
 		org.apache.log4j.Logger.getLogger("hu.juzraai.toolbox").setLevel(Level.WARN);
 		org.apache.log4j.Logger.getLogger("com.j256.ormlite").setLevel(Level.WARN);
 
-		JCommander jc = new JCommander();
+		MainParameters main = new MainParameters();
 		GetCommand get = new GetCommand();
 		StatCommand stat = new StatCommand();
+
+		JCommander jc = new JCommander(main);
 		jc.addCommand(get);
 		jc.addCommand(stat);
-		if (0 == args.length) {
-			jc.usage();
-		} else {
-			try {
-				jc.parse(args);
-				String cmd = jc.getParsedCommand();
-				if ("get".equalsIgnoreCase(cmd)) {
-					// TODO
-					// build ProxyDatabase
-					// pass GetCommand and ProxyDatabase to engine builder
-					// start engine
-					// close ProxyDatabase
-					// TODO or pdb should be handled inside engine? maybe...
-				} else if ("stat".equalsIgnoreCase(cmd)) {
-					// TODO
+		try {
+			jc.parse(args);
+			String cmd = jc.getParsedCommand();
+
+			if ("get".equalsIgnoreCase(cmd)) {
+				try (ProxyDatabase db = ProxyDatabase.build(new File(main.getDatabaseFile()))) {
+					new ProxyEngine(get, db).call();
 				}
-			} catch (ParameterException e) {
-				System.out.println("ERROR: " + e.getMessage() + "\n");
-				jc.setProgramName("java -jar proxy-manager-VERSION.jar");
+			} else if ("stat".equalsIgnoreCase(cmd)) {
+				// TRY-W-R ProxyDatabase db = ProxyDatabase.build(new File(main.getDatabaseFile()));
+				// TODO
+				// pass StatCommand and ProxyDatabase
+			} else {
 				jc.usage();
 			}
+		} catch (ParameterException e) {
+			System.out.println("ERROR: " + e.getMessage() + "\n");
+			jc.setProgramName("java -jar proxy-manager-VERSION.jar");
+			jc.usage();
 		}
 
 //		boolean readFromStdIn = false;
