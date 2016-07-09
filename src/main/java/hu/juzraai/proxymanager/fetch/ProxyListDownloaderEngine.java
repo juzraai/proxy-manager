@@ -48,9 +48,9 @@ public class ProxyListDownloaderEngine {
 		}
 		threadPool.shutdown();
 
-
-		for (String crawlerName : futures.keySet()) {
-			Future<Set<String>> future = futures.get(crawlerName);
+		for (Map.Entry<String, Future<Set<String>>> entry : futures.entrySet()) {
+			String crawlerName = entry.getKey();
+			Future<Set<String>> future = entry.getValue();
 			Set<String> currentProxies = new HashSet<>();
 			try {
 				currentProxies.addAll(future.get());
@@ -60,7 +60,7 @@ public class ProxyListDownloaderEngine {
 				L.warn("Couldn't get future object of crawler " + crawlerName + ": ", e);
 			}
 			db.storeProxySourceInfo(currentProxies, crawlerName, timestamp);
-		} // crawlers
+		}
 
 		L.info("Got {} unique proxies", proxies.size());
 		return proxies;

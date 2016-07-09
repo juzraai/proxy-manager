@@ -28,10 +28,11 @@ public class WorkingProxyFilter implements RecordFilter<ProxyRecord> {
 	 */
 	@Override
 	public ProxyRecord processRecord(@Nonnull ProxyRecord record) {
-		boolean working = Boolean.TRUE == record.getPayload().getWorking();
-		if (!working) {
+		Boolean o = record.getPayload().getWorking();
+		boolean p = null == o ? false : o;
+		if (!p) {
 			L.trace("Proxy filtered out: {}", record.getPayload().getId());
 		}
-		return working ? record : null;
+		return p ? record : null;
 	}
 }

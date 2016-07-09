@@ -57,7 +57,7 @@ public class App {
 				}
 			} else if ("stat".equalsIgnoreCase(cmd)) {
 				// TRY-W-R ProxyDatabase db = ProxyDatabase.build(new File(main.getDatabaseFile()));
-				// TODO
+				// TODO stat
 				// pass StatCommand and ProxyDatabase
 			} else {
 				jc.usage();

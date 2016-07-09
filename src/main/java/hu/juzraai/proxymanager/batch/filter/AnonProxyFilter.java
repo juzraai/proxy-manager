@@ -28,10 +28,11 @@ public class AnonProxyFilter implements RecordFilter<ProxyRecord> {
 	 */
 	@Override
 	public ProxyRecord processRecord(@Nonnull ProxyRecord record) {
-		boolean anon = Boolean.TRUE == record.getPayload().getAnon();
-		if (!anon) {
+		Boolean o = record.getPayload().getAnon();
+		boolean p = null == o ? false : o;
+		if (!p) {
 			L.trace("Proxy filtered out: {}", record.getPayload().getId());
 		}
-		return anon ? record : null;
+		return p ? record : null;
 	}
 }

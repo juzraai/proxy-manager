@@ -21,7 +21,7 @@ public class ProxyTesterProcessor implements RecordProcessor<ProxyRecord, ProxyR
 	@Override
 	public ProxyRecord processRecord(ProxyRecord record) throws RecordProcessingException {
 		try {
-			tester.test(record.getPayload());
+			tester.test(record.getPayload()); // logging done inside
 		} catch (IOException e) {
 			throw new RecordProcessingException("Failed to test proxy", e);
 		}

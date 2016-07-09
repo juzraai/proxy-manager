@@ -85,7 +85,7 @@ public class ProxyTestInfo implements Identifiable<String> {
 	}
 
 	public int port() {
-		return null == ipPort ? 8080 : Integer.valueOf(ipPort.split(":")[1]);
+		return null == ipPort ? 8080 : Integer.parseInt(ipPort.split(":")[1]);
 	}
 
 	@Override

@@ -3,32 +3,60 @@ package hu.juzraai.proxymanager.batch.processor;
 import hu.juzraai.proxymanager.batch.record.ProxyRecord;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
 import hu.juzraai.proxymanager.data.ProxyTestInfo;
+import hu.juzraai.toolbox.log.LoggerFactory;
 import org.easybatch.core.processor.RecordProcessingException;
 import org.easybatch.core.processor.RecordProcessor;
+import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.sql.SQLException;
 
 /**
+ * Queries proxy information from the database and replaces the {@link
+ * ProxyTestInfo} payload object in {@link ProxyRecord}.
+ *
  * @author Zsolt Jurányi
  */
 public class ProxyInfoFetcherProcessor implements RecordProcessor<ProxyRecord, ProxyRecord> {
 
+	private static final Logger L = LoggerFactory.getLogger(ProxyInfoFetcherProcessor.class);
+
 	private final ProxyDatabase db;
 
-	public ProxyInfoFetcherProcessor(ProxyDatabase db) {
+	/**
+	 * Creates a new instance.
+	 *
+	 * @param db {@link ProxyDatabase} to use for querying
+	 */
+	public ProxyInfoFetcherProcessor(@Nonnull ProxyDatabase db) {
 		this.db = db;
 	}
 
+	/**
+	 * Queries proxy information from the database and replaces the {@link
+	 * ProxyTestInfo} payload object in {@link ProxyRecord}.
+	 *
+	 * @param proxyRecord {@link ProxyRecord} to be replaced. It should have its
+	 *                    <code>ipPort</code> field filled
+	 * @return A new {@link ProxyRecord} with the queried {@link ProxyTestInfo}
+	 * as payload or the original record if there were no such proxy in the
+	 * database
+	 * @throws RecordProcessingException
+	 */
+	@Nonnull
 	@Override
-	public ProxyRecord processRecord(ProxyRecord proxyRecord) throws RecordProcessingException {
+	public ProxyRecord processRecord(@Nonnull ProxyRecord proxyRecord) throws RecordProcessingException {
 		try {
-			// TODO log
+			L.trace("Querying proxy information from database: {}", proxyRecord.getPayload().getId());
 			ProxyTestInfo proxyFromDb = db.getDb().fetch(ProxyTestInfo.class, proxyRecord.getPayload().getId());
 			if (null != proxyFromDb) {
+				L.trace("Found proxy information in database: {}", proxyFromDb);
 				proxyRecord = new ProxyRecord(proxyRecord.getHeader(), proxyFromDb);
 			}
 		} catch (SQLException e) {
-			throw new RecordProcessingException("Failed to fetch proxy info from database", e);
+			String m = "Failed to fetch proxy info from database";
+			L.error(m, e);
+			throw new RecordProcessingException(m, e);
 		}
 		return proxyRecord;
 	}
