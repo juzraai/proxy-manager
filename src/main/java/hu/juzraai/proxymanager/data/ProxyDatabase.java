@@ -48,6 +48,10 @@ public class ProxyDatabase implements Closeable {
 		db.close();
 	}
 
+	public OrmLiteDatabase getDb() {
+		return db;
+	}
+
 	public synchronized void storeNewProxies(Set<String> proxies) {
 		L.info("Storing new proxies");
 		int newProxies = 0;

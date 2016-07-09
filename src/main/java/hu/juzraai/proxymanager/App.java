@@ -50,6 +50,7 @@ public class App {
 	}
 
 	public static void main(String[] args) throws Exception {
+		org.apache.log4j.Logger.getRootLogger().setLevel(Level.TRACE);
 		org.apache.log4j.Logger.getLogger("hu.juzraai.toolbox").setLevel(Level.WARN);
 		org.apache.log4j.Logger.getLogger("com.j256.ormlite").setLevel(Level.WARN);
 

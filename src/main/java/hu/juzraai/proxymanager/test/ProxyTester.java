@@ -81,7 +81,7 @@ public abstract class ProxyTester {
 				proxy.setWorking(false);
 				proxy.setAnon(false);
 				proxy.setLastChecked(new Date().getTime());
-			} else {
+			} else { // TODO throw exception here!
 				L.error("{} - Test page is unavailable or internet connection is broken", this.getClass().getSimpleName());
 			}
 		}

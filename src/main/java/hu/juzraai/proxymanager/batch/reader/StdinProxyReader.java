@@ -50,7 +50,7 @@ public class StdinProxyReader implements RecordReader {
 	public Record readNextRecord() throws RecordReadingException {
 		String line = null;
 		if (scanner.hasNextLine()) {
-			line = scanner.nextLine();
+			line = scanner.nextLine().trim();
 		}
 		if (null == line || line.isEmpty()) {
 			stop = true;
