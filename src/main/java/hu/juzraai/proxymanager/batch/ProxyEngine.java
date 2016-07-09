@@ -38,7 +38,7 @@ import java.util.concurrent.*;
 public class ProxyEngine implements Callable<Void> {
 
 	private static final Logger L = LoggerFactory.getLogger(ProxyEngine.class);
-	private static final int WORKERS = 5; // TODO GetCommand.threads
+	private static final int WORKERS = 10; // TODO GetCommand.threads
 
 	private final GetCommand params;
 	private final ProxyDatabase db;
@@ -119,7 +119,8 @@ public class ProxyEngine implements Callable<Void> {
 				.writer(new ProxyDatabaseWriter(db))
 				.filter(new WorkingProxyFilter())
 				// TODO anon filter - if needed
-				.writer(new StandardOutputRecordWriter())
+				// TODO later: recently tested filter - drop old ones
+				.writer(new StandardOutputRecordWriter()) // TODO should print only IP:PORT
 				.build();
 	}
 

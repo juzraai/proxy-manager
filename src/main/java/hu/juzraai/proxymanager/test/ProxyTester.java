@@ -60,7 +60,7 @@ public abstract class ProxyTester {
 			if (null != r) {
 				Boolean anon = parseIfAnon(r);
 				L.trace("{} - Anonimity check for {} proxy: {}", this.getClass().getSimpleName(), proxy.getId(), anon);
-				if (null != r) {
+				if (null != anon) {
 					working = true;
 					proxy.setWorking(true);
 					proxy.setAnon(anon);
