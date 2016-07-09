@@ -17,6 +17,8 @@ public class GetCommand {
 	private Test test = Test.AUTO;
 	@Parameter(names = {"-a", "--anon"}, description = "If specified, prints only anonymous proxies")
 	private Boolean anon = false;
+	@Parameter(names = {"-w", "--workers"}, description = "Number of threads to use to test proxies")
+	private Integer threads = 10;
 
 	public Boolean getAnon() {
 		return anon;
@@ -42,12 +44,21 @@ public class GetCommand {
 		this.test = test;
 	}
 
+	public Integer getThreads() {
+		return threads;
+	}
+
+	public void setThreads(Integer threads) {
+		this.threads = threads;
+	}
+
 	@Override
 	public String toString() {
 		return "GetCommand{" +
 				"input=" + input +
 				", test=" + test +
 				", anon=" + anon +
+				", threads=" + threads +
 				'}';
 	}
 

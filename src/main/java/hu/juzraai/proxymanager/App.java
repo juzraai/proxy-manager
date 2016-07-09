@@ -7,9 +7,10 @@ import hu.juzraai.proxymanager.cli.GetCommand;
 import hu.juzraai.proxymanager.cli.MainParameters;
 import hu.juzraai.proxymanager.cli.StatCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
-import hu.juzraai.toolbox.log.LoggerFactory;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
-import org.slf4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 import java.io.File;
 
@@ -17,8 +18,6 @@ import java.io.File;
  * @author Zsolt Jurányi
  */
 public class App {
-
-	private static final Logger L = LoggerFactory.getLogger(App.class);
 
 	// TODO ? Proxy.notWorkingSince
 	// TODO ? crawling: do not fetch a proxy site more than one in a minute! (ProxyListInfo.lastFetched)
@@ -29,9 +28,17 @@ public class App {
 	// TODO checkfornull, nonnull
 
 	public static void main(String[] args) throws Exception {
-		org.apache.log4j.Logger.getRootLogger().setLevel(Level.TRACE);
+
+		// override Toolbox 16.07 log settings
+
+		org.apache.log4j.Logger.getRootLogger().removeAllAppenders();
+		Layout layout = new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} [%-5p] [%-10t] %c{1}:%L >> %m%n");
+		org.apache.log4j.Logger.getRootLogger().addAppender(new FileAppender(layout, "proxy-manager.log", true, true, 1024 * 8));
+		org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
 		org.apache.log4j.Logger.getLogger("hu.juzraai.toolbox").setLevel(Level.WARN);
 		org.apache.log4j.Logger.getLogger("com.j256.ormlite").setLevel(Level.WARN);
+
+		// command line argument parsing
 
 		MainParameters main = new MainParameters();
 		GetCommand get = new GetCommand();

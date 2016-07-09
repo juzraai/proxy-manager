@@ -15,6 +15,10 @@ public class ProxyServerPrivacyDotComProxyTester extends ProxyTester {
 
 	private static final Logger L = LoggerFactory.getLogger(ProxyServerPrivacyDotComProxyTester.class);
 
+	public ProxyServerPrivacyDotComProxyTester() {
+		super(L);
+	}
+
 	@Override
 	public String getTestPageUrl() {
 		return "http://www.proxyserverprivacy.com/adv-free-proxy-detector.shtml";

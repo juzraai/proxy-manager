@@ -1,5 +1,6 @@
 package hu.juzraai.proxymanager.batch;
 
+import hu.juzraai.proxymanager.batch.filter.AnonProxyFilter;
 import hu.juzraai.proxymanager.batch.filter.ValidProxyFilter;
 import hu.juzraai.proxymanager.batch.filter.WorkingProxyFilter;
 import hu.juzraai.proxymanager.batch.mapper.IpPortProxyMapper;
@@ -7,10 +8,10 @@ import hu.juzraai.proxymanager.batch.processor.ProxyInfoFetcherProcessor;
 import hu.juzraai.proxymanager.batch.processor.ProxyTesterProcessor;
 import hu.juzraai.proxymanager.batch.reader.StdinProxyReader;
 import hu.juzraai.proxymanager.batch.writer.ProxyDatabaseWriter;
+import hu.juzraai.proxymanager.batch.writer.StdoutProxyWriter;
 import hu.juzraai.proxymanager.cli.GetCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
 import hu.juzraai.proxymanager.test.ProxyServerPrivacyDotComProxyTester;
-import hu.juzraai.toolbox.cache.FileCacheForStrings;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.easybatch.core.dispatcher.PoisonRecordBroadcaster;
 import org.easybatch.core.dispatcher.RoundRobinRecordDispatcher;
@@ -21,24 +22,25 @@ import org.easybatch.core.job.JobReport;
 import org.easybatch.core.reader.BlockingQueueRecordReader;
 import org.easybatch.core.reader.RecordReader;
 import org.easybatch.core.record.Record;
-import org.easybatch.core.writer.StandardOutputRecordWriter;
 import org.easybatch.tools.reporting.DefaultJobReportMerger;
-import org.easybatch.tools.reporting.HtmlJobReportFormatter;
 import org.easybatch.tools.reporting.JobReportMerger;
 import org.slf4j.Logger;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+
+import static hu.juzraai.proxymanager.cli.GetCommand.Input.STDIN;
+import static hu.juzraai.proxymanager.cli.GetCommand.Test.NONE;
 
 /**
  * @author Zsolt Jurányi
  */
 public class ProxyEngine implements Callable<Void> {
 
+	// TODO gather working p? for use as lib? maybe Callable<List<String>> ? and bool gather constr arg?
+
 	private static final Logger L = LoggerFactory.getLogger(ProxyEngine.class);
-	private static final int WORKERS = 10; // TODO GetCommand.threads
 
 	private final GetCommand params;
 	private final ProxyDatabase db;
@@ -54,7 +56,7 @@ public class ProxyEngine implements Callable<Void> {
 
 		L.info("Initializing engine");
 		List<Job> jobs = new ArrayList<>();
-		for (int i = 0; i < WORKERS; i++) {
+		for (int i = 0; i < params.getThreads(); i++) {
 			L.trace("Creating worker #{}", i);
 			jobs.add(createWorker());
 		}
@@ -63,7 +65,7 @@ public class ProxyEngine implements Callable<Void> {
 		jobs.add(0, createMasterJob()); // after creating queues!
 
 		L.info("Starting engine");
-		ExecutorService executorService = Executors.newFixedThreadPool(1 + WORKERS);
+		ExecutorService executorService = Executors.newFixedThreadPool(1 + params.getThreads());
 		List<Future<JobReport>> futureReports = executorService.invokeAll(jobs);
 		List<JobReport> reports = new ArrayList<>();
 		for (Future<JobReport> fr : futureReports) {
@@ -75,8 +77,8 @@ public class ProxyEngine implements Callable<Void> {
 		// TODO poison records are also counted in report... they shouldn't be...
 		JobReportMerger reportMerger = new DefaultJobReportMerger();
 		JobReport finalReport = reportMerger.mergerReports(reports.toArray(new JobReport[]{}));
-		String htmlReport = new HtmlJobReportFormatter().formatReport(finalReport);
-		new FileCacheForStrings(new File(".")).store("report.html", htmlReport);
+//		String htmlReport = new HtmlJobReportFormatter().formatReport(finalReport);
+//		new FileCacheForStrings(new File(".")).store("report.html", htmlReport);
 
 		System.out.println(finalReport);
 
@@ -99,7 +101,7 @@ public class ProxyEngine implements Callable<Void> {
 	}
 
 	protected RecordReader createReader() {
-		if (GetCommand.Input.STDIN == params.getInput()) {
+		if (STDIN == params.getInput()) {
 			return new StdinProxyReader();
 		}
 		return null;
@@ -108,20 +110,40 @@ public class ProxyEngine implements Callable<Void> {
 	protected Job createWorker() {
 		BlockingQueue<Record> q = new LinkedBlockingQueue<>();
 		queues.add(q);
-		return JobBuilder.aNewJob()
+
+		JobBuilder builder = JobBuilder.aNewJob()
 				.silentMode(true)
-				.named("proxy-engine-worker-" + queues.size())
-				.reader(new BlockingQueueRecordReader(q))
-				.filter(new PoisonRecordFilter())
-				// TODO add tester only if GetCommand.test <> NONE
-				// TODO also pass mode to tester: AUTO or ALL
-				.processor(new ProxyTesterProcessor(new ProxyServerPrivacyDotComProxyTester()))
-				.writer(new ProxyDatabaseWriter(db))
-				.filter(new WorkingProxyFilter())
-				// TODO anon filter - if needed
-				// TODO later: recently tested filter - drop old ones
-				.writer(new StandardOutputRecordWriter()) // TODO should print only IP:PORT
-				.build();
+				.named("proxy-engine-worker-" + queues.size());
+
+		// read from queue
+		builder.reader(new BlockingQueueRecordReader(q));
+		builder.filter(new PoisonRecordFilter());
+
+
+		if (NONE != params.getTest()) {
+			// TODO AUTO mode - how? pass it to tester and it will filter inside?
+
+			// test proxies
+			builder.processor(new ProxyTesterProcessor(new ProxyServerPrivacyDotComProxyTester()));
+
+			// write test results to db
+			builder.writer(new ProxyDatabaseWriter(db));
+		}
+
+		// need only working proxies
+		builder.filter(new WorkingProxyFilter());
+
+		if (params.getAnon()) {
+			// need only anon working proxies
+			builder.filter(new AnonProxyFilter());
+		}
+
+		// TODO later: recently tested filter - drop old ones
+
+		// print working proxies
+		builder.writer(new StdoutProxyWriter());
+
+		return builder.build();
 	}
 
 	public ProxyDatabase getDb() {
