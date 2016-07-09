@@ -1,10 +1,12 @@
 package hu.juzraai.proxymanager.batch;
 
 import hu.juzraai.proxymanager.batch.filter.ValidProxyFilter;
+import hu.juzraai.proxymanager.batch.filter.WorkingProxyFilter;
 import hu.juzraai.proxymanager.batch.mapper.IpPortProxyMapper;
 import hu.juzraai.proxymanager.batch.processor.ProxyInfoFetcherProcessor;
 import hu.juzraai.proxymanager.batch.processor.ProxyTesterProcessor;
 import hu.juzraai.proxymanager.batch.reader.StdinProxyReader;
+import hu.juzraai.proxymanager.batch.writer.ProxyDatabaseWriter;
 import hu.juzraai.proxymanager.cli.GetCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
 import hu.juzraai.proxymanager.test.ProxyServerPrivacyDotComProxyTester;
@@ -111,9 +113,12 @@ public class ProxyEngine implements Callable<Void> {
 				.named("proxy-engine-worker-" + queues.size())
 				.reader(new BlockingQueueRecordReader(q))
 				.filter(new PoisonRecordFilter())
+				// TODO add tester only if GetCommand.test <> NONE
+				// TODO also pass mode to tester: AUTO or ALL
 				.processor(new ProxyTesterProcessor(new ProxyServerPrivacyDotComProxyTester()))
-				// TODO tester: throw error when test site / connection is dead
-				// TODO filter: filter out non working proxies
+				.writer(new ProxyDatabaseWriter(db))
+				.filter(new WorkingProxyFilter())
+				// TODO anon filter - if needed
 				.writer(new StandardOutputRecordWriter())
 				.build();
 	}
