@@ -22,12 +22,13 @@ public class ProxyInfoFetcherProcessor implements RecordProcessor<ProxyRecord, P
 	@Override
 	public ProxyRecord processRecord(ProxyRecord proxyRecord) throws RecordProcessingException {
 		try {
+			// TODO log
 			ProxyTestInfo proxyFromDb = db.getDb().fetch(ProxyTestInfo.class, proxyRecord.getPayload().getId());
 			if (null != proxyFromDb) {
 				proxyRecord = new ProxyRecord(proxyRecord.getHeader(), proxyFromDb);
 			}
 		} catch (SQLException e) {
-			throw new RecordProcessingException("Failed to fetch proxy info for database", e);
+			throw new RecordProcessingException("Failed to fetch proxy info from database", e);
 		}
 		return proxyRecord;
 	}

@@ -48,7 +48,7 @@ public abstract class ProxyTester {
 
 	protected abstract Boolean parseIfAnon(Response r); // null means not working
 
-	public void test(ProxyTestInfo proxy) {
+	public void test(ProxyTestInfo proxy) throws IOException {
 		L.info("Testing proxy: {}", proxy.getId());
 		Response r = null;
 
@@ -81,8 +81,10 @@ public abstract class ProxyTester {
 				proxy.setWorking(false);
 				proxy.setAnon(false);
 				proxy.setLastChecked(new Date().getTime());
-			} else { // TODO throw exception here!
-				L.error("{} - Test page is unavailable or internet connection is broken", this.getClass().getSimpleName());
+			} else {
+				String m = "Test page is unavailable or internet connection is broken";
+				L.error("{} - {}", this.getClass().getSimpleName(), m);
+				throw new IOException(m);
 			}
 		}
 	}

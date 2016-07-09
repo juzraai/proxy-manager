@@ -2,9 +2,13 @@ package hu.juzraai.proxymanager.batch;
 
 import hu.juzraai.proxymanager.batch.filter.ValidProxyFilter;
 import hu.juzraai.proxymanager.batch.mapper.IpPortProxyMapper;
+import hu.juzraai.proxymanager.batch.processor.ProxyInfoFetcherProcessor;
+import hu.juzraai.proxymanager.batch.processor.ProxyTesterProcessor;
 import hu.juzraai.proxymanager.batch.reader.StdinProxyReader;
 import hu.juzraai.proxymanager.cli.GetCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
+import hu.juzraai.proxymanager.test.ProxyServerPrivacyDotComProxyTester;
+import hu.juzraai.toolbox.cache.FileCacheForStrings;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.easybatch.core.dispatcher.PoisonRecordBroadcaster;
 import org.easybatch.core.dispatcher.RoundRobinRecordDispatcher;
@@ -17,9 +21,11 @@ import org.easybatch.core.reader.RecordReader;
 import org.easybatch.core.record.Record;
 import org.easybatch.core.writer.StandardOutputRecordWriter;
 import org.easybatch.tools.reporting.DefaultJobReportMerger;
+import org.easybatch.tools.reporting.HtmlJobReportFormatter;
 import org.easybatch.tools.reporting.JobReportMerger;
 import org.slf4j.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -64,9 +70,11 @@ public class ProxyEngine implements Callable<Void> {
 		reports.remove(0); // we don't need master job's metrics - they contain additional PRs...
 
 		L.info("Generating report");
+		// TODO poison records are also counted in report... they shouldn't be...
 		JobReportMerger reportMerger = new DefaultJobReportMerger();
 		JobReport finalReport = reportMerger.mergerReports(reports.toArray(new JobReport[]{}));
-		// TODO poison records are also counted in report... they shouldn't be...
+		String htmlReport = new HtmlJobReportFormatter().formatReport(finalReport);
+		new FileCacheForStrings(new File(".")).store("report.html", htmlReport);
 
 		System.out.println(finalReport);
 
@@ -75,26 +83,27 @@ public class ProxyEngine implements Callable<Void> {
 		return null;
 	}
 
-	private Job createMasterJob() {
+	protected Job createMasterJob() {
 		return JobBuilder.aNewJob()
 				.silentMode(true)
 				.named("proxy-engine")
 				.reader(createReader())
 				.filter(new ValidProxyFilter())
 				.mapper(new IpPortProxyMapper())
+				.processor(new ProxyInfoFetcherProcessor(db))
 				.dispatcher(new RoundRobinRecordDispatcher<>(queues))
 				.jobListener(new PoisonRecordBroadcaster<>(queues))
 				.build();
 	}
 
-	private RecordReader createReader() {
+	protected RecordReader createReader() {
 		if (GetCommand.Input.STDIN == params.getInput()) {
 			return new StdinProxyReader();
 		}
 		return null;
 	}
 
-	private Job createWorker() {
+	protected Job createWorker() {
 		BlockingQueue<Record> q = new LinkedBlockingQueue<>();
 		queues.add(q);
 		return JobBuilder.aNewJob()
@@ -102,10 +111,15 @@ public class ProxyEngine implements Callable<Void> {
 				.named("proxy-engine-worker-" + queues.size())
 				.reader(new BlockingQueueRecordReader(q))
 				.filter(new PoisonRecordFilter())
+				.processor(new ProxyTesterProcessor(new ProxyServerPrivacyDotComProxyTester()))
 				// TODO tester: throw error when test site / connection is dead
 				// TODO filter: filter out non working proxies
 				.writer(new StandardOutputRecordWriter())
 				.build();
+	}
+
+	public ProxyDatabase getDb() {
+		return db;
 	}
 
 	public GetCommand getParams() {
