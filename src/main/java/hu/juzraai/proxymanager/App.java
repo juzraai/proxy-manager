@@ -7,6 +7,7 @@ import hu.juzraai.proxymanager.cli.GetCommand;
 import hu.juzraai.proxymanager.cli.MainParameters;
 import hu.juzraai.proxymanager.cli.StatCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
+import hu.juzraai.proxymanager.stat.ProxyListStatsGenerator;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Layout;
 import org.apache.log4j.Level;
@@ -52,13 +53,23 @@ public class App {
 			String cmd = jc.getParsedCommand();
 
 			if ("get".equalsIgnoreCase(cmd)) {
+
+				// build database connection & close automatically
 				try (ProxyDatabase db = ProxyDatabase.build(new File(main.getDatabaseFile()))) {
+
+					// call engine
 					new ProxyEngine(get, db).call();
 				}
+
 			} else if ("stat".equalsIgnoreCase(cmd)) {
-				// TRY-W-R ProxyDatabase db = ProxyDatabase.build(new File(main.getDatabaseFile()));
-				// TODO stat
-				// pass StatCommand and ProxyDatabase
+
+				// build database connection & close automatically
+				try (ProxyDatabase db = ProxyDatabase.build(new File(main.getDatabaseFile()))) {
+
+					// call statistics generator
+					new ProxyListStatsGenerator(stat, db).call();
+				}
+
 			} else {
 				jc.usage();
 			}

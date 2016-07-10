@@ -19,7 +19,7 @@ import java.util.Scanner;
  *
  * @author Zsolt Jurányi
  */
-public class StdinProxyReader implements RecordReader {
+public class StdinReader implements RecordReader {
 
 	private Scanner scanner;
 	private long recordNumber;
@@ -69,6 +69,7 @@ public class StdinProxyReader implements RecordReader {
 	 */
 	@Override
 	public void open() throws RecordReaderOpeningException {
+		recordNumber = 0;
 		scanner = new Scanner(System.in);
 	}
 

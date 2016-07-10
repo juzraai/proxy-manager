@@ -38,8 +38,7 @@ public class ProxyDatabase implements Closeable {
 		}
 		L.info("Connecting to SQLite database in file: {}", f.getAbsolutePath());
 		OrmLiteDatabase db = OrmLiteDatabase.build(ConnectionString.SQLITE().databaseFile(f).build(), null, null);
-		db.createTables(ProxyTestInfo.class, ProxySourceInfo.class);
-		// TODO build tables
+		db.createTables(ProxyTestInfo.class, ProxySourceInfo.class, ProxyListInfo.class);
 		return new ProxyDatabase(db);
 	}
 

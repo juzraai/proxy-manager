@@ -7,6 +7,8 @@ import org.easybatch.core.reader.RecordReadingException;
 import org.easybatch.core.record.Header;
 import org.easybatch.core.record.StringRecord;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -16,9 +18,9 @@ import java.util.Iterator;
 public class StringIterableReader implements RecordReader {
 
 	private final Iterator<String> i;
-	private long currentRecordNumber;
+	private long recordNumber;
 
-	public StringIterableReader(Iterable<String> c) {
+	public StringIterableReader(@Nonnull Iterable<String> c) {
 		i = c.iterator();
 	}
 
@@ -26,11 +28,13 @@ public class StringIterableReader implements RecordReader {
 	public void close() throws RecordReaderClosingException {
 	}
 
+	@Nonnull
 	@Override
 	public String getDataSourceName() {
 		return "collection-reader";
 	}
 
+	@CheckForNull
 	@Override
 	public Long getTotalRecords() {
 		return null;
@@ -43,12 +47,13 @@ public class StringIterableReader implements RecordReader {
 
 	@Override
 	public void open() throws RecordReaderOpeningException {
-		currentRecordNumber = 0;
+		recordNumber = 0;
 	}
 
+	@Nonnull
 	@Override
 	public StringRecord readNextRecord() throws RecordReadingException {
-		Header header = new Header(++currentRecordNumber, getDataSourceName(), new Date());
+		Header header = new Header(++recordNumber, getDataSourceName(), new Date());
 		return new StringRecord(header, i.next());
 	}
 }

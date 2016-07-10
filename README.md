@@ -20,14 +20,14 @@ The following table shows **average** statistics:
 
 Site | Proxy count | Working count | Anon count
 -----|------------:|--------------:|-----------:
-[freeproxylists.com](http://www.freeproxylists.com/anon.php) | ~ 115 | ~ 65 | ~ 50
-[gatherproxy.com](http://gatherproxy.com/proxylist/anonymity/?t=Elite) | 25 | 14 | 14
-[hide-my-ip.com](https://www.hide-my-ip.com/proxylist.shtml) | *(limited to)* 100 | 18 | 9
-[idcloak.com](http://www.idcloak.com/proxylist/free-proxy-ip-list.html) | ~ 90 | ~ 59 | ~ 14
-[incloak.com](https://incloak.com/proxy-list/) | 64 | 5 | 2
-[ip-adress.com](http://www.ip-adress.com/proxy_list/?k=time&d=desc) | 50 | 37 | 18
-[proxy.moo.jp](http://proxy.moo.jp/?u=90) | ~ 260 | ~ 70 | ~ 35
-[proxynova.com](http://www.proxynova.com/proxy-server-list/) | 35 | 17 | 8
+[freeproxylists.com](http://www.freeproxylists.com/anon.php)              | ~ 115 | ~ 65 | ~ 50
+[gatherproxy.com](http://gatherproxy.com/proxylist/anonymity/?t=Elite)    |    25 |   14 |   14
+[hide-my-ip.com](https://www.hide-my-ip.com/proxylist.shtml) | *(limited to)* 100 |   18 |    9
+[idcloak.com](http://www.idcloak.com/proxylist/free-proxy-ip-list.html)   |  ~ 90 | ~ 59 | ~ 14
+[incloak.com](https://incloak.com/proxy-list/)                            |    64 |    5 |    2
+[ip-adress.com](http://www.ip-adress.com/proxy_list/?k=time&d=desc)       |    50 |   37 |   18
+[proxy.moo.jp](http://proxy.moo.jp/?u=90)                                 | ~ 260 | ~ 70 | ~ 35
+[proxynova.com](http://www.proxynova.com/proxy-server-list/)              |    35 |   17 |    8
 **Total**  | **~ 740** | **~ 285** | **~ 150**
 **Unique** | **~ 695** | **~ 250** | **~ 135**
 

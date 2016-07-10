@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 /**
  * @author Zsolt Jurányi
  */
-@DatabaseTable
+@DatabaseTable(tableName = TableNames.PROXY_SOURCE_INFO)
 public class ProxySourceInfo implements Identifiable<String> {
 
 	@DatabaseField(id = true)

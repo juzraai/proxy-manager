@@ -6,7 +6,8 @@ import hu.juzraai.proxymanager.batch.filter.WorkingProxyFilter;
 import hu.juzraai.proxymanager.batch.mapper.IpPortProxyMapper;
 import hu.juzraai.proxymanager.batch.processor.ProxyInfoFetcherProcessor;
 import hu.juzraai.proxymanager.batch.processor.ProxyTesterProcessor;
-import hu.juzraai.proxymanager.batch.reader.StdinProxyReader;
+import hu.juzraai.proxymanager.batch.reader.ProxyDatabaseReader;
+import hu.juzraai.proxymanager.batch.reader.StdinReader;
 import hu.juzraai.proxymanager.batch.reader.StringIterableReader;
 import hu.juzraai.proxymanager.batch.writer.ProxyDatabaseWriter;
 import hu.juzraai.proxymanager.batch.writer.StdoutProxyWriter;
@@ -105,12 +106,14 @@ public class ProxyEngine implements Callable<Void> {
 	protected RecordReader createReader() {
 		switch (params.getInput()) {
 			case STDIN:
-				return new StdinProxyReader();
+				return new StdinReader();
 			case CRAWL:
 				ProxyListDownloaderEngine plde = new ProxyListDownloaderEngine(params.getThreads(), db);
 				Set<String> proxies = plde.fetchProxyList();
 				L.info("Got {} unique proxies from crawlers", proxies.size());
 				return new StringIterableReader(proxies);
+			case DB:
+				return new ProxyDatabaseReader(db);
 		}
 		return null;
 	}
