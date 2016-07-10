@@ -7,6 +7,7 @@ import org.easybatch.core.writer.RecordWriter;
 import org.easybatch.core.writer.RecordWritingException;
 import org.slf4j.Logger;
 
+import javax.annotation.Nonnull;
 import java.sql.SQLException;
 
 /**
@@ -18,12 +19,13 @@ public class ProxyDatabaseWriter implements RecordWriter<ProxyRecord> {
 
 	private final ProxyDatabase db;
 
-	public ProxyDatabaseWriter(ProxyDatabase db) {
+	public ProxyDatabaseWriter(@Nonnull ProxyDatabase db) {
 		this.db = db;
 	}
 
+	@Nonnull
 	@Override
-	public ProxyRecord processRecord(ProxyRecord record) throws RecordWritingException {
+	public ProxyRecord processRecord(@Nonnull ProxyRecord record) throws RecordWritingException {
 		try {
 			L.trace("Storing proxy: {}", record.getPayload());
 			db.getDb().store(record.getPayload());

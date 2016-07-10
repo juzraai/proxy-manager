@@ -33,7 +33,7 @@ public class App {
 
 		org.apache.log4j.Logger.getRootLogger().removeAllAppenders();
 		Layout layout = new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} [%-5p] [%-10t] %c{1}:%L >> %m%n");
-		org.apache.log4j.Logger.getRootLogger().addAppender(new FileAppender(layout, "proxy-manager.log", true, true, 1024 * 8));
+		org.apache.log4j.Logger.getRootLogger().addAppender(new FileAppender(layout, "proxyman.log", true, true, 1024 * 8));
 		org.apache.log4j.Logger.getRootLogger().setLevel(Level.INFO);
 		org.apache.log4j.Logger.getLogger("hu.juzraai.toolbox").setLevel(Level.WARN);
 		org.apache.log4j.Logger.getLogger("com.j256.ormlite").setLevel(Level.WARN);

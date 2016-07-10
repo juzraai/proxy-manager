@@ -7,10 +7,12 @@ import hu.juzraai.proxymanager.batch.mapper.IpPortProxyMapper;
 import hu.juzraai.proxymanager.batch.processor.ProxyInfoFetcherProcessor;
 import hu.juzraai.proxymanager.batch.processor.ProxyTesterProcessor;
 import hu.juzraai.proxymanager.batch.reader.StdinProxyReader;
+import hu.juzraai.proxymanager.batch.reader.StringIterableReader;
 import hu.juzraai.proxymanager.batch.writer.ProxyDatabaseWriter;
 import hu.juzraai.proxymanager.batch.writer.StdoutProxyWriter;
 import hu.juzraai.proxymanager.cli.GetCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
+import hu.juzraai.proxymanager.fetch.ProxyListDownloaderEngine;
 import hu.juzraai.proxymanager.test.ProxyServerPrivacyDotComProxyTester;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.easybatch.core.dispatcher.PoisonRecordBroadcaster;
@@ -28,9 +30,9 @@ import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 
-import static hu.juzraai.proxymanager.cli.GetCommand.Input.STDIN;
 import static hu.juzraai.proxymanager.cli.GetCommand.Test.NONE;
 
 /**
@@ -101,8 +103,14 @@ public class ProxyEngine implements Callable<Void> {
 	}
 
 	protected RecordReader createReader() {
-		if (STDIN == params.getInput()) {
-			return new StdinProxyReader();
+		switch (params.getInput()) {
+			case STDIN:
+				return new StdinProxyReader();
+			case CRAWL:
+				ProxyListDownloaderEngine plde = new ProxyListDownloaderEngine(params.getThreads(), db);
+				Set<String> proxies = plde.fetchProxyList();
+				L.info("Got {} unique proxies from crawlers", proxies.size());
+				return new StringIterableReader(proxies);
 		}
 		return null;
 	}
