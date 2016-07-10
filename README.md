@@ -16,18 +16,22 @@
 
 ## Crawled proxy lists
 
-Site | Proxy count
------|------------:
-[freeproxylists.com](http://www.freeproxylists.com/anon.php) | 107
-[gatherproxy.com](http://gatherproxy.com/proxylist/anonymity/?t=Elite) | 25
-[hide-my-ip.com](https://www.hide-my-ip.com/proxylist.shtml) | *(limited to)* 100
-[idcloak.com](http://www.idcloak.com/proxylist/free-proxy-ip-list.html) | ~ 90
-[incloak.com](https://incloak.com/proxy-list/) | 64
-[ip-adress.com](http://www.ip-adress.com/proxy_list/?k=time&d=desc) | 50
-[proxy.moo.jp](http://proxy.moo.jp/?u=90) | ~ 290
-[proxynova.com](http://www.proxynova.com/proxy-server-list/) | 35
-**Total** | **~ 760**
-**Unique** | **~ 710**
+The following table shows **average** statistics:
+
+Site | Proxy count | Working count | Anon count
+-----|------------:|--------------:|-----------:
+[freeproxylists.com](http://www.freeproxylists.com/anon.php) | ~ 115 | ~ 65 | ~ 50
+[gatherproxy.com](http://gatherproxy.com/proxylist/anonymity/?t=Elite) | 25 | 14 | 14
+[hide-my-ip.com](https://www.hide-my-ip.com/proxylist.shtml) | *(limited to)* 100 | 18 | 9
+[idcloak.com](http://www.idcloak.com/proxylist/free-proxy-ip-list.html) | ~ 90 | ~ 59 | ~ 14
+[incloak.com](https://incloak.com/proxy-list/) | 64 | 5 | 2
+[ip-adress.com](http://www.ip-adress.com/proxy_list/?k=time&d=desc) | 50 | 37 | 18
+[proxy.moo.jp](http://proxy.moo.jp/?u=90) | ~ 260 | ~ 70 | ~ 35
+[proxynova.com](http://www.proxynova.com/proxy-server-list/) | 35 | 17 | 8
+**Total**  | **~ 740** | **~ 285** | **~ 150**
+**Unique** | **~ 695** | **~ 250** | **~ 135**
+
+Testing ~700 proxy with 10 worker threads can take up to 20 minutes. (Maybe if we decrease retries from 2 to 1, we can make it faster.)
 
 According to my tests there are an average of **10 new proxy comes in each minute**.
 
