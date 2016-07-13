@@ -15,7 +15,6 @@ import java.util.concurrent.Future;
 public class ProxyListDownloaderEngine {
 
 	private static final Logger L = LoggerFactory.getLogger(ProxyListDownloaderEngine.class);
-	private final int threads;
 
 	private final List<ProxyListDownloaderTask> crawlers = new ArrayList<ProxyListDownloaderTask>();
 	private final ProxyDatabase db;
@@ -31,12 +30,11 @@ public class ProxyListDownloaderEngine {
 		crawlers.add(new ProxyNovaDotComPLD());
 	}
 
-	public ProxyListDownloaderEngine(int threads, ProxyDatabase db) {
-		this.threads = threads;
+	public ProxyListDownloaderEngine(ProxyDatabase db) {
 		this.db = db;
 	}
 
-	public Set<String> fetchProxyList() {
+	public Set<String> fetchProxyList(int threads) {
 		Set<String> proxies = new HashSet<>();
 
 		L.info("Starting crawlers");

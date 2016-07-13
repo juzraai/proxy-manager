@@ -18,7 +18,7 @@ public abstract class ProxyTester {
 
 	private static final int TIMEOUT = 60 * 1000;
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
-	private static int DEFAULT_RETRY_COUNT = 2;
+	private static int DEFAULT_TRY_COUNT = 1;
 
 	private final Logger L;
 
@@ -28,10 +28,6 @@ public abstract class ProxyTester {
 
 	protected void configureConnection(Connection c) {
 		c.method(GET).timeout(TIMEOUT).userAgent(USER_AGENT);
-	}
-
-	public int getRetries() {
-		return DEFAULT_RETRY_COUNT;
 	}
 
 	protected Response getTestPage(ProxyTestInfo proxy) {
@@ -50,16 +46,20 @@ public abstract class ProxyTester {
 
 	public abstract String getTestPageUrl();
 
+	public int getTries() {
+		return DEFAULT_TRY_COUNT;
+	}
+
 	protected abstract Boolean parseIfAnon(Response r); // null means not working
 
 	public void test(ProxyTestInfo proxy) throws IOException {
 		L.info("Testing proxy: {}", proxy.getId());
-		Response r = null;
+		Response r;
 
-		int tries = getRetries();
+		int tries = getTries();
 		boolean working = false;
 		while (0 < tries-- && !working) {
-			L.trace("Try #{} of proxy: {}", getRetries() - tries, proxy.getId());
+			L.trace("Try #{} of proxy: {}", getTries() - tries, proxy.getId());
 			r = getTestPage(proxy);
 			if (null != r) {
 				Boolean anon = parseIfAnon(r);
@@ -74,7 +74,7 @@ public abstract class ProxyTester {
 		}
 
 		if (!working) {
-			L.debug("Test of proxy {} failed {} times, checking test site w/o proxy", proxy.getId(), getRetries());
+			L.debug("Test of proxy {} failed {} times, checking test site w/o proxy", proxy.getId(), getTries());
 			boolean workingWithoutProxy = false;
 			r = getTestPage(null);
 			if (null != r) {

@@ -6,15 +6,17 @@
 
 ## Features
 
-* downloads IP:PORT HTTP proxy lists from **8 sites**
+* can download IP:PORT HTTP proxy lists from **8 sites**
+* can accept proxy list from standard input
 * stores proxy source information: crawler name (includes site name), date of first and last fetch
+* tests proxies and determines if they working and whether they anonymous
 * stores all data in a single **SQLite database file**
 * you can use it as a **stand-alone** tool
 * you can use it as a **library**
 
 
 
-## Crawled proxy lists
+## Proxy lists it can crawl
 
 The following table shows **average** statistics:
 

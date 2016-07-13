@@ -53,7 +53,7 @@ public class ProxyListStatsGenerator implements Callable<List<ProxyListInfo>> {
 		GenericRawResults<ProxyListInfo> r = db.getDb().dao(ProxySourceInfo.class).queryRaw(sql.toString(), new RawRowMapper<ProxyListInfo>() {
 			@Override
 			public ProxyListInfo mapRow(String[] columnNames, String[] resultColumns) throws SQLException {
-				// resultColumns: source, count, working, anon
+				// resultColumns: source, count, working, anon, last fetched, shared
 				ProxyListInfo pli = new ProxyListInfo();
 				pli.setUrl(resultColumns[0]); // TODO rename URL to name + introduce name in PLD
 				pli.setAnonWorkingProxyCount(Integer.parseInt(resultColumns[3]));

@@ -29,9 +29,10 @@ public class ProxyDatabaseWriter implements RecordWriter<ProxyRecord> {
 		try {
 			L.trace("Storing proxy: {}", record.getPayload());
 			db.getDb().store(record.getPayload());
-			// TODO sync around db? create synced store in OrmLite or ProxyDb?
 		} catch (SQLException e) {
-			throw new RecordWritingException("Failed to store proxy in database", e);
+			String m = "Failed to store proxy in database";
+			L.error(m, e);
+			throw new RecordWritingException(m, e);
 		}
 		return record;
 	}

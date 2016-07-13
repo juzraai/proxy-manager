@@ -14,7 +14,9 @@ import hu.juzraai.proxymanager.batch.writer.StdoutProxyWriter;
 import hu.juzraai.proxymanager.cli.GetCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
 import hu.juzraai.proxymanager.fetch.ProxyListDownloaderEngine;
+import hu.juzraai.proxymanager.fetch.ProxyListDownloaderTask;
 import hu.juzraai.proxymanager.test.ProxyServerPrivacyDotComProxyTester;
+import hu.juzraai.proxymanager.test.ProxyTester;
 import hu.juzraai.toolbox.log.LoggerFactory;
 import org.easybatch.core.dispatcher.PoisonRecordBroadcaster;
 import org.easybatch.core.dispatcher.RoundRobinRecordDispatcher;
@@ -42,16 +44,25 @@ import static hu.juzraai.proxymanager.cli.GetCommand.Test.NONE;
 public class ProxyEngine implements Callable<Void> {
 
 	// TODO gather working p? for use as lib? maybe Callable<List<String>> ? and bool gather constr arg?
+	// OK, but how to return them? add gathering mechanism to workers?
 
 	private static final Logger L = LoggerFactory.getLogger(ProxyEngine.class);
 
 	private final GetCommand params;
 	private final ProxyDatabase db;
+	private final ProxyListDownloaderEngine plde;
 	private final List<BlockingQueue<Record>> queues = new ArrayList<>();
+	private final List<Class<? extends ProxyTester>> testerClasses = new ArrayList<>();
+
+	{
+		// default tester
+		testerClasses.add(ProxyServerPrivacyDotComProxyTester.class);
+	}
 
 	public ProxyEngine(GetCommand params, ProxyDatabase db) {
 		this.params = params;
 		this.db = db;
+		this.plde = new ProxyListDownloaderEngine(db);
 	}
 
 	@Override
@@ -108,8 +119,7 @@ public class ProxyEngine implements Callable<Void> {
 			case STDIN:
 				return new StdinReader();
 			case CRAWL:
-				ProxyListDownloaderEngine plde = new ProxyListDownloaderEngine(params.getThreads(), db);
-				Set<String> proxies = plde.fetchProxyList();
+				Set<String> proxies = plde.fetchProxyList(params.getThreads());
 				L.info("Got {} unique proxies from crawlers", proxies.size());
 				return new StringIterableReader(proxies);
 			case DB:
@@ -135,7 +145,12 @@ public class ProxyEngine implements Callable<Void> {
 			// TODO AUTO mode - how? pass it to tester and it will filter inside?
 
 			// test proxies
-			builder.processor(new ProxyTesterProcessor(new ProxyServerPrivacyDotComProxyTester()));
+			for (Class<? extends ProxyTester> testerClass : testerClasses) {
+				ProxyTester tester = instantiateTester(testerClass);
+				if (null != tester) {
+					builder.processor(new ProxyTesterProcessor(tester));
+				}
+			}
 
 			// write test results to db
 			builder.writer(new ProxyDatabaseWriter(db));
@@ -163,5 +178,22 @@ public class ProxyEngine implements Callable<Void> {
 
 	public GetCommand getParams() {
 		return params;
+	}
+
+	public List<ProxyListDownloaderTask> getProxyListDownloaders() {
+		return plde.getCrawlers();
+	}
+
+	public List<Class<? extends ProxyTester>> getTesterClasses() {
+		return testerClasses;
+	}
+
+	protected ProxyTester instantiateTester(Class<? extends ProxyTester> c) {
+		try {
+			return c.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			L.error("Failed to instantiate tester class, removing from list: {}", c.getName());
+		}
+		return null;
 	}
 }
