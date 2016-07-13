@@ -18,6 +18,8 @@ import java.sql.SQLException;
 import java.util.Date;
 
 /**
+ * Reads proxy list from the database and produces {@link StringRecord} objects.
+ *
  * @author Zsolt Jurányi
  */
 public class ProxyDatabaseReader implements RecordReader {
@@ -27,10 +29,20 @@ public class ProxyDatabaseReader implements RecordReader {
 	private CloseableIterator<ProxyTestInfo> i;
 	private long recordNumber;
 
+	/**
+	 * Creates a new instance.
+	 *
+	 * @param db {@link ProxyDatabase} to read
+	 */
 	public ProxyDatabaseReader(@Nonnull ProxyDatabase db) {
 		this.db = db;
 	}
 
+	/**
+	 * Closes the iterator used to read proxies from the database.
+	 *
+	 * @throws RecordReaderClosingException
+	 */
 	@Override
 	public void close() throws RecordReaderClosingException {
 		try {
@@ -42,12 +54,18 @@ public class ProxyDatabaseReader implements RecordReader {
 		}
 	}
 
+	/**
+	 * @return Name of the datasource
+	 */
 	@Nonnull
 	@Override
 	public String getDataSourceName() {
 		return "database";
 	}
 
+	/**
+	 * @return Total number of {@link ProxyTestInfo} records in the database
+	 */
 	@CheckForNull
 	@Override
 	public Long getTotalRecords() {
@@ -59,11 +77,21 @@ public class ProxyDatabaseReader implements RecordReader {
 		}
 	}
 
+	/**
+	 * @return <code>true</code> if there are more records to read or
+	 * <code>false</code> otherwise
+	 */
 	@Override
 	public boolean hasNextRecord() {
 		return i.hasNext();
 	}
 
+	/**
+	 * Initializes the {@link ProxyTestInfo} iterator to be able to read records
+	 * from the database.
+	 *
+	 * @throws RecordReaderOpeningException
+	 */
 	@Override
 	public void open() throws RecordReaderOpeningException {
 		recordNumber = 0;
@@ -76,6 +104,14 @@ public class ProxyDatabaseReader implements RecordReader {
 		}
 	}
 
+	/**
+	 * Reads the next {@link ProxyTestInfo} record from the database and
+	 * produces a {@link StringRecord}.
+	 *
+	 * @return A {@link StringRecord} which has the <code>ipPort</code> field of
+	 * the {@link ProxyTestInfo} object as payload
+	 * @throws RecordReadingException
+	 */
 	@Nonnull
 	@Override
 	public StringRecord readNextRecord() throws RecordReadingException {
