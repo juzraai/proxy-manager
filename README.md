@@ -6,10 +6,12 @@
 
 ## Features
 
+
+
 * can download IP:PORT HTTP proxy lists from **8 sites**
 * can accept proxy list from standard input
 * stores proxy source information: crawler name (includes site name), date of first and last fetch
-* tests proxies and determines if they working and whether they anonymous
+* tests proxies and determines if they are working and whether they are anonymous
 * stores all data in a single **SQLite database file**
 * you can use it as a **stand-alone** tool
 * you can use it as a **library**
@@ -17,6 +19,8 @@
 
 
 ## Proxy lists it can crawl
+
+
 
 The following table shows **average** statistics:
 
@@ -41,22 +45,57 @@ According to my tests there are an average of **10 new proxy comes in each minut
 
 ## Use as stand-alone tool
 
-*(what it does)*
 
-Accepted arguments:
 
-* `--stdin` - reads IP:PORT list from standard input instead of sites listed above
+**Syntax:**
+
+`$ java -jar proxy-manager-VERSION.jar [global options] [command] [command options]`
+
+
+
+**Global options:**
+
+Short            | Long                    | Description
+-----------------|-------------------------|------------
+`-db <filename>` | `--database <filename>` | Set SQLite database filename. Default is `proxies.db`.
+
+
+
+ **Commands:**
+
+ Name   | Description
+ -------|------------
+ `get`  | Prints working proxies to standard output
+ `stat` | Prints statistics of proxy lists to standard output
+
+
+
+ **Options of `get`:**
+
+ Short            | Long                    | Description
+ -----------------|-------------------------|------------
+`-i <mode>`       | `--input <mode>`        | **Required.** Selects input mode. Possible values: `stdin`, `crawl`, `db`.
+`-t <mode>`       | `--test <mode>`         | Selects test mode. Possible values are: `none`, `auto`, `all`. Default is `auto`.
+`-a`              | `--anon`                | Prints out only anonymous proxies.
+`-w`              | `--workers`             | Number of worker threads to download or test proxies. Default is `10`.
 
 
 
 ## Use as library
 
-First, add **Proxy Manager** as dependency from [JitPack.io](https://jitpack.io/#juzraai/toolbox). Follow the link to get information on how to do this, click on the green *"Get it"* button besides the latest version.
 
-*(code samples)*
+
+**Dependency**
+
+You can add **Proxy Manager** as dependency using [JitPack.io](https://jitpack.io/#juzraai/toolbox). Follow the link to get information on how to do this, click on the green *"Get it"* button besides the latest version and scroll down to code snippets.
+
+*(TODO code samples)*
+
 
 
 ## Contribute
+
+
 
 You can contribute to this project by:
 

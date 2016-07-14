@@ -9,6 +9,7 @@ import hu.juzraai.proxymanager.batch.processor.ProxyTesterProcessor;
 import hu.juzraai.proxymanager.batch.reader.ProxyDatabaseReader;
 import hu.juzraai.proxymanager.batch.reader.StdinReader;
 import hu.juzraai.proxymanager.batch.reader.StringIterableReader;
+import hu.juzraai.proxymanager.batch.report.ReportGenerator;
 import hu.juzraai.proxymanager.batch.writer.ProxyDatabaseWriter;
 import hu.juzraai.proxymanager.batch.writer.StdoutProxyWriter;
 import hu.juzraai.proxymanager.cli.GetCommand;
@@ -27,8 +28,6 @@ import org.easybatch.core.job.JobReport;
 import org.easybatch.core.reader.BlockingQueueRecordReader;
 import org.easybatch.core.reader.RecordReader;
 import org.easybatch.core.record.Record;
-import org.easybatch.tools.reporting.DefaultJobReportMerger;
-import org.easybatch.tools.reporting.JobReportMerger;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -43,14 +42,12 @@ import static hu.juzraai.proxymanager.cli.GetCommand.Test.NONE;
  */
 public class ProxyEngine implements Callable<Void> {
 
-	// TODO gather working p? for use as lib? maybe Callable<List<String>> ? and bool gather constr arg?
-	// OK, but how to return them? add gathering mechanism to workers?
-
 	private static final Logger L = LoggerFactory.getLogger(ProxyEngine.class);
 
 	private final GetCommand params;
 	private final ProxyDatabase db;
 	private final ProxyListDownloaderEngine plde;
+	private final ReportGenerator rg = new ReportGenerator();
 	private final List<BlockingQueue<Record>> queues = new ArrayList<>();
 	private final List<Class<? extends ProxyTester>> testerClasses = new ArrayList<>();
 
@@ -82,19 +79,14 @@ public class ProxyEngine implements Callable<Void> {
 		ExecutorService executorService = Executors.newFixedThreadPool(1 + params.getThreads());
 		List<Future<JobReport>> futureReports = executorService.invokeAll(jobs);
 		List<JobReport> reports = new ArrayList<>();
+
+		L.info("Waiting for workers");
 		for (Future<JobReport> fr : futureReports) {
 			reports.add(fr.get());
 		}
 		reports.remove(0); // we don't need master job's metrics - they contain additional PRs...
 
-		L.info("Generating report");
-		// TODO poison records are also counted in report... they shouldn't be...
-		JobReportMerger reportMerger = new DefaultJobReportMerger();
-		JobReport finalReport = reportMerger.mergerReports(reports.toArray(new JobReport[]{}));
-//		String htmlReport = new HtmlJobReportFormatter().formatReport(finalReport);
-//		new FileCacheForStrings(new File(".")).store("report.html", htmlReport);
-
-		System.out.println(finalReport);
+		L.info("Report: {}", rg.generateReport(reports));
 
 		L.info("Engine shutting down");
 		executorService.shutdown();
