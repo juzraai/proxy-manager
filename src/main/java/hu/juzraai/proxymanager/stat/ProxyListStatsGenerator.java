@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import javax.annotation.Nonnull;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -56,11 +55,11 @@ public class ProxyListStatsGenerator implements Callable<List<ProxyListInfo>> {
 				// resultColumns: source, count, working, anon, last fetched, shared
 				ProxyListInfo pli = new ProxyListInfo();
 				pli.setUrl(resultColumns[0]); // TODO rename URL to name + introduce name in PLD
-				pli.setAnonWorkingProxyCount(Integer.parseInt(resultColumns[3]));
-				pli.setLastFetched(new Date(Long.parseLong(resultColumns[4])));
 				pli.setProxyCount(Integer.parseInt(resultColumns[1]));
-				pli.setSharedProxyCount(Integer.parseInt(resultColumns[5]));
 				pli.setWorkingProxyCount(Integer.parseInt(resultColumns[2]));
+				pli.setAnonWorkingProxyCount(Integer.parseInt(resultColumns[3]));
+				pli.setLastFetched(Long.parseLong(resultColumns[4]));
+				pli.setSharedProxyCount(Integer.parseInt(resultColumns[5]));
 				return pli;
 			}
 		});

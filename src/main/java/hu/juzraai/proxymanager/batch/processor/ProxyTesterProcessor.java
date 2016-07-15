@@ -19,14 +19,17 @@ import java.io.IOException;
 public class ProxyTesterProcessor implements RecordProcessor<ProxyRecord, ProxyRecord> {
 
 	private final ProxyTester tester;
+	private final boolean auto;
 
 	/**
 	 * Creates a new instance.
 	 *
 	 * @param tester {@link ProxyTester} to be used to test proxies
+	 * @param auto
 	 */
-	public ProxyTesterProcessor(@Nonnull ProxyTester tester) {
+	public ProxyTesterProcessor(@Nonnull ProxyTester tester, boolean auto) {
 		this.tester = tester;
+		this.auto = auto;
 	}
 
 	/**
@@ -41,10 +44,12 @@ public class ProxyTesterProcessor implements RecordProcessor<ProxyRecord, ProxyR
 	@Nonnull
 	@Override
 	public ProxyRecord processRecord(@Nonnull ProxyRecord record) throws RecordProcessingException {
-		try {
-			tester.test(record.getPayload()); // logging done inside
-		} catch (IOException e) {
-			throw new RecordProcessingException("Failed to test proxy", e);
+		if (!auto || tester.shouldTestProxy(record.getPayload())) { // TODO javadoc auto test
+			try {
+				tester.test(record.getPayload()); // logging done inside
+			} catch (IOException e) {
+				throw new RecordProcessingException("Failed to test proxy", e);
+			}
 		}
 		return record;
 	}

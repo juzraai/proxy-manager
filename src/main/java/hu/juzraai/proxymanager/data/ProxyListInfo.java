@@ -14,45 +14,45 @@ public class ProxyListInfo {
 	@DatabaseField(id = true)
 	private String url;
 	@DatabaseField
-	private Date lastFetched;
+	private Long lastFetched;
 	@DatabaseField
-	private int proxyCount;
+	private Integer proxyCount;
 	@DatabaseField
-	private int workingProxyCount;
+	private Integer workingProxyCount;
 	@DatabaseField
-	private int anonWorkingProxyCount;
+	private Integer anonWorkingProxyCount;
 	@DatabaseField
-	private int sharedProxyCount;
+	private Integer sharedProxyCount;
 
-	public int getAnonWorkingProxyCount() {
+	public Integer getAnonWorkingProxyCount() {
 		return anonWorkingProxyCount;
 	}
 
-	public void setAnonWorkingProxyCount(int anonWorkingProxyCount) {
+	public void setAnonWorkingProxyCount(Integer anonWorkingProxyCount) {
 		this.anonWorkingProxyCount = anonWorkingProxyCount;
 	}
 
-	public Date getLastFetched() {
+	public Long getLastFetched() {
 		return lastFetched;
 	}
 
-	public void setLastFetched(Date lastFetched) {
+	public void setLastFetched(Long lastFetched) {
 		this.lastFetched = lastFetched;
 	}
 
-	public int getProxyCount() {
+	public Integer getProxyCount() {
 		return proxyCount;
 	}
 
-	public void setProxyCount(int proxyCount) {
+	public void setProxyCount(Integer proxyCount) {
 		this.proxyCount = proxyCount;
 	}
 
-	public int getSharedProxyCount() {
+	public Integer getSharedProxyCount() {
 		return sharedProxyCount;
 	}
 
-	public void setSharedProxyCount(int sharedProxyCount) {
+	public void setSharedProxyCount(Integer sharedProxyCount) {
 		this.sharedProxyCount = sharedProxyCount;
 	}
 
@@ -64,11 +64,11 @@ public class ProxyListInfo {
 		this.url = url;
 	}
 
-	public int getWorkingProxyCount() {
+	public Integer getWorkingProxyCount() {
 		return workingProxyCount;
 	}
 
-	public void setWorkingProxyCount(int workingProxyCount) {
+	public void setWorkingProxyCount(Integer workingProxyCount) {
 		this.workingProxyCount = workingProxyCount;
 	}
 

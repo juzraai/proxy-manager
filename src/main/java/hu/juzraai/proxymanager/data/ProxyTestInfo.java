@@ -21,7 +21,7 @@ public class ProxyTestInfo implements Identifiable<String> {
 	@DatabaseField
 	private Long lastChecked;
 	@DatabaseField
-	private Long lastUsed;
+	private Long sameResultSince;
 
 	public ProxyTestInfo() {
 	}
@@ -64,12 +64,12 @@ public class ProxyTestInfo implements Identifiable<String> {
 		this.lastChecked = lastChecked;
 	}
 
-	public Long getLastUsed() {
-		return lastUsed;
+	public Long getSameResultSince() {
+		return sameResultSince;
 	}
 
-	public void setLastUsed(Long lastUsed) {
-		this.lastUsed = lastUsed;
+	public void setSameResultSince(Long sameResultSince) {
+		this.sameResultSince = sameResultSince;
 	}
 
 	public Boolean getWorking() {
@@ -95,7 +95,7 @@ public class ProxyTestInfo implements Identifiable<String> {
 				", working=" + working +
 				", anon=" + anon +
 				", lastChecked=" + lastChecked +
-				", lastUsed=" + lastUsed +
+				", sameResultSince=" + sameResultSince +
 				'}';
 	}
 }

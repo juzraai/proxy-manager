@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.*;
 
+import static hu.juzraai.proxymanager.cli.GetCommand.Test.AUTO;
 import static hu.juzraai.proxymanager.cli.GetCommand.Test.NONE;
 
 /**
@@ -140,7 +141,7 @@ public class ProxyEngine implements Callable<Void> {
 			for (Class<? extends ProxyTester> testerClass : testerClasses) {
 				ProxyTester tester = instantiateTester(testerClass);
 				if (null != tester) {
-					builder.processor(new ProxyTesterProcessor(tester));
+					builder.processor(new ProxyTesterProcessor(tester, AUTO == params.getTest()));
 				}
 			}
 
