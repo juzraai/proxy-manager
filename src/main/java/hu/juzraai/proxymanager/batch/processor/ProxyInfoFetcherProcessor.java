@@ -36,7 +36,7 @@ public class ProxyInfoFetcherProcessor implements RecordProcessor<ProxyRecord, P
 	 * Queries proxy information from the database and replaces the {@link
 	 * ProxyTestInfo} payload object in {@link ProxyRecord}.
 	 *
-	 * @param proxyRecord {@link ProxyRecord} to be replaced. It should have its
+	 * @param record {@link ProxyRecord} to be replaced. It should have its
 	 *                    <code>ipPort</code> field filled
 	 * @return A new {@link ProxyRecord} with the queried {@link ProxyTestInfo}
 	 * as payload or the original record if there were no such proxy in the
@@ -45,19 +45,19 @@ public class ProxyInfoFetcherProcessor implements RecordProcessor<ProxyRecord, P
 	 */
 	@Nonnull
 	@Override
-	public ProxyRecord processRecord(@Nonnull ProxyRecord proxyRecord) throws RecordProcessingException {
+	public ProxyRecord processRecord(@Nonnull ProxyRecord record) throws RecordProcessingException {
 		try {
-			L.trace("Querying proxy information from database: {}", proxyRecord.getPayload().getId());
-			ProxyTestInfo proxyFromDb = db.getDb().fetch(ProxyTestInfo.class, proxyRecord.getPayload().getId());
+			L.trace("Querying proxy information from database: {}", record.getPayload().getId());
+			ProxyTestInfo proxyFromDb = db.getDb().fetch(ProxyTestInfo.class, record.getPayload().getId());
 			if (null != proxyFromDb) {
 				L.trace("Found proxy information in database: {}", proxyFromDb);
-				proxyRecord = new ProxyRecord(proxyRecord.getHeader(), proxyFromDb);
+				record = new ProxyRecord(record.getHeader(), proxyFromDb);
 			}
 		} catch (SQLException e) {
-			String m = "Failed to fetch proxy info from database";
+			String m = String.format("Failed to fetch proxy info from database: %s", record.getPayload().getId());
 			L.error(m, e);
 			throw new RecordProcessingException(m, e);
 		}
-		return proxyRecord;
+		return record;
 	}
 }

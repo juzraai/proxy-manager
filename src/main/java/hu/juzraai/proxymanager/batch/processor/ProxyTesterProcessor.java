@@ -25,7 +25,8 @@ public class ProxyTesterProcessor implements RecordProcessor<ProxyRecord, ProxyR
 	 * Creates a new instance.
 	 *
 	 * @param tester {@link ProxyTester} to be used to test proxies
-	 * @param auto
+	 * @param auto   Whether to decide automatically whether a proxy should be
+	 *               tested or not
 	 */
 	public ProxyTesterProcessor(@Nonnull ProxyTester tester, boolean auto) {
 		this.tester = tester;
@@ -36,6 +37,10 @@ public class ProxyTesterProcessor implements RecordProcessor<ProxyRecord, ProxyR
 	 * Calls <code>test</code> method of the wrapped {@link ProxyTester} object
 	 * and passes the {@link ProxyTestInfo} payload which will be updated with
 	 * the test result by the tester.
+	 * <p>
+	 * When <code>auto</code> mode is enabled first it asks tester object's
+	 * <code>shouldTestProxy</code> method whether the proxy should be tested or
+	 * not.
 	 *
 	 * @param record {@link ProxyRecord} to be tested
 	 * @return The input record with its {@link ProxyTestInfo} payload updated
@@ -44,7 +49,7 @@ public class ProxyTesterProcessor implements RecordProcessor<ProxyRecord, ProxyR
 	@Nonnull
 	@Override
 	public ProxyRecord processRecord(@Nonnull ProxyRecord record) throws RecordProcessingException {
-		if (!auto || tester.shouldTestProxy(record.getPayload())) { // TODO javadoc auto test
+		if (!auto || tester.shouldTestProxy(record.getPayload())) {
 			try {
 				tester.test(record.getPayload()); // logging done inside
 			} catch (IOException e) {

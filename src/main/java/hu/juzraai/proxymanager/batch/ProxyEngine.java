@@ -10,6 +10,7 @@ import hu.juzraai.proxymanager.batch.reader.ProxyDatabaseReader;
 import hu.juzraai.proxymanager.batch.reader.StdinReader;
 import hu.juzraai.proxymanager.batch.reader.StringIterableReader;
 import hu.juzraai.proxymanager.batch.report.ReportGenerator;
+import hu.juzraai.proxymanager.batch.writer.BlockingQueueProxyWriter;
 import hu.juzraai.proxymanager.batch.writer.ProxyDatabaseWriter;
 import hu.juzraai.proxymanager.batch.writer.StdoutProxyWriter;
 import hu.juzraai.proxymanager.cli.GetCommand;
@@ -30,6 +31,7 @@ import org.easybatch.core.reader.RecordReader;
 import org.easybatch.core.record.Record;
 import org.slf4j.Logger;
 
+import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,24 +45,26 @@ import static hu.juzraai.proxymanager.cli.GetCommand.Test.NONE;
  */
 public class ProxyEngine implements Callable<Void> {
 
+	public static final String POISON_RECORD = "";
 	private static final Logger L = LoggerFactory.getLogger(ProxyEngine.class);
-
 	private final GetCommand params;
 	private final ProxyDatabase db;
 	private final ProxyListDownloaderEngine plde;
-	private final ReportGenerator rg = new ReportGenerator();
 	private final List<BlockingQueue<Record>> queues = new ArrayList<>();
 	private final List<Class<? extends ProxyTester>> testerClasses = new ArrayList<>();
+	private final BlockingQueue<String> output;
+	private ReportGenerator reportGenerator = new ReportGenerator();
 
 	{
 		// default tester
 		testerClasses.add(ProxyServerPrivacyDotComProxyTester.class);
 	}
 
-	public ProxyEngine(GetCommand params, ProxyDatabase db) {
+	public ProxyEngine(GetCommand params, ProxyDatabase db, boolean cliMode) {
 		this.params = params;
 		this.db = db;
 		this.plde = new ProxyListDownloaderEngine(db);
+		this.output = cliMode ? null : new LinkedBlockingQueue<String>();
 	}
 
 	@Override
@@ -86,8 +90,12 @@ public class ProxyEngine implements Callable<Void> {
 			reports.add(fr.get());
 		}
 		reports.remove(0); // we don't need master job's metrics - they contain additional PRs...
+		L.info("Report: {}", reportGenerator.generateReport(reports));
 
-		L.info("Report: {}", rg.generateReport(reports));
+		if (null != output) {
+			L.debug("Sending poison record to output queue");
+			output.put(POISON_RECORD);
+		}
 
 		L.info("Engine shutting down");
 		executorService.shutdown();
@@ -135,7 +143,6 @@ public class ProxyEngine implements Callable<Void> {
 
 
 		if (NONE != params.getTest()) {
-			// TODO AUTO mode - how? pass it to tester and it will filter inside?
 
 			// test proxies
 			for (Class<? extends ProxyTester> testerClass : testerClasses) {
@@ -159,8 +166,12 @@ public class ProxyEngine implements Callable<Void> {
 
 		// TODO later: recently tested filter - drop old ones
 
-		// print working proxies
-		builder.writer(new StdoutProxyWriter());
+		// output
+		if (null == output) { // cli mode
+			builder.writer(new StdoutProxyWriter());
+		} else {
+			builder.writer(new BlockingQueueProxyWriter(output));
+		}
 
 		return builder.build();
 	}
@@ -169,12 +180,25 @@ public class ProxyEngine implements Callable<Void> {
 		return db;
 	}
 
+	@CheckForNull
+	public BlockingQueue<String> getOutput() {
+		return output;
+	}
+
 	public GetCommand getParams() {
 		return params;
 	}
 
 	public List<ProxyListDownloaderTask> getProxyListDownloaders() {
 		return plde.getCrawlers();
+	}
+
+	public ReportGenerator getReportGenerator() {
+		return reportGenerator;
+	}
+
+	public void setReportGenerator(ReportGenerator reportGenerator) {
+		this.reportGenerator = reportGenerator;
 	}
 
 	public List<Class<? extends ProxyTester>> getTesterClasses() {

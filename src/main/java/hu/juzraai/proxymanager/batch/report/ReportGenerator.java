@@ -1,15 +1,30 @@
 package hu.juzraai.proxymanager.batch.report;
 
+import org.easybatch.core.job.Job;
 import org.easybatch.core.job.JobReport;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
+ * Utility for generating job report string from workers {@link JobReport}
+ * objects.
+ *
  * @author Zsolt Jurányi
  */
 public class ReportGenerator {
 
-	public String generateReport(List<JobReport> reports) {
+	/**
+	 * Merges workers' {@link JobReport} objects and generates a string with
+	 * these values: total record count, skipped record count, filtered record
+	 * count, failed record count, succeced record count, average processing
+	 * time.
+	 *
+	 * @param reports {@link JobReport} objects returned by worker {@link Job}s
+	 * @return Merged and readable report as string
+	 */
+	@Nonnull
+	public String generateReport(@Nonnull List<JobReport> reports) {
 
 		long total = 0;
 		long skipped = 0;

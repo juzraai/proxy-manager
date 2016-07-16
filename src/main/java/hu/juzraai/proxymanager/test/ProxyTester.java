@@ -92,7 +92,7 @@ public abstract class ProxyTester {
 			L.debug("Test of proxy {} failed {} times, checking test site w/o proxy", proxy.getId(), getTries());
 			Response r = getTestPage(null);
 			if (null != r && null != parseIfAnon(r)) { // works w/o proxy
-				L.debug("Test page is available so the proxy was wrong.");
+				L.debug("Test page is available so the proxy was wrong");
 			} else {
 				String m = "Test page is unavailable or internet connection is broken";
 				L.error(m);

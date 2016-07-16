@@ -45,7 +45,7 @@ public class ProxyDatabaseWriter implements RecordWriter<ProxyRecord> {
 			L.trace("Storing proxy: {}", record.getPayload());
 			db.getDb().store(record.getPayload());
 		} catch (SQLException e) {
-			String m = "Failed to store proxy in database";
+			String m = String.format("Failed to store proxy in database: %s", record.getPayload().getId());
 			L.error(m, e);
 			throw new RecordWritingException(m, e);
 		}

@@ -4,8 +4,13 @@ import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import hu.juzraai.proxymanager.batch.ProxyEngine;
 
 /**
+ * Model of the <code>get</code> CLI command and configuration of {@link
+ * ProxyEngine}. Fields tell the proxy source, the test mode, thread count and
+ * output filtering.
+ *
  * @author Zsolt Jurányi
  */
 @Parameters(commandNames = "get", commandDescription = "Prints working proxies")

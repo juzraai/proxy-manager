@@ -58,7 +58,7 @@ public class App {
 				try (ProxyDatabase db = ProxyDatabase.build(new File(main.getDatabaseFile()))) {
 
 					// call engine
-					new ProxyEngine(get, db).call();
+					new ProxyEngine(get, db, true).call();
 				}
 
 			} else if ("stat".equalsIgnoreCase(cmd)) {
