@@ -61,19 +61,19 @@ Short            | Long                    | Description
 
 
 
- ### Commands
+### Commands
 
- Name   | Description
- -------|------------
- `get`  | Prints working proxies to standard output
- `stat` | Prints statistics of proxy lists to standard output
+Name   | Description
+-------|------------
+`get`  | Prints working proxies to standard output
+`stat` | Prints statistics of proxy lists to standard output
 
 
 
- ### Options of `get`
+### Options of `get`
 
- Short            | Long                    | Description
- -----------------|-------------------------|------------
+Short             | Long                    | Description
+------------------|-------------------------|------------
 `-i <mode>`       | `--input <mode>`        | **Required.** Selects input mode. Possible values: `stdin`, `crawl`, `db`.
 `-t <mode>`       | `--test <mode>`         | Selects test mode. Possible values are: `none`, `auto`, `all`. Default is `auto`.
 `-a`              | `--anon`                | Prints out only anonymous proxies.
@@ -113,6 +113,8 @@ try (ProxyDatabase db = ProxyDatabase.build()) {
 }
 ```
 
+
+
 ### Proxy downloader engine
 
 If you need to download proxy lists using more than one crawlers and you need to store proxy source information, you have to use `ProxyListDownloaderEngine`:
@@ -132,6 +134,8 @@ try (ProxyDatabase db = ProxyDatabase.build()) {
 	// ...process proxy list...
 }
 ```
+
+
 
 ### Proxy engine
 
