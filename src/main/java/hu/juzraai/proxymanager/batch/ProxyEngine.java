@@ -15,6 +15,7 @@ import hu.juzraai.proxymanager.batch.writer.ProxyDatabaseWriter;
 import hu.juzraai.proxymanager.batch.writer.StdoutProxyWriter;
 import hu.juzraai.proxymanager.cli.GetCommand;
 import hu.juzraai.proxymanager.data.ProxyDatabase;
+import hu.juzraai.proxymanager.data.ProxyTestInfo;
 import hu.juzraai.proxymanager.fetch.ProxyListDownloaderEngine;
 import hu.juzraai.proxymanager.fetch.ProxyListDownloaderTask;
 import hu.juzraai.proxymanager.test.ProxyServerPrivacyDotComProxyTester;
@@ -32,6 +33,7 @@ import org.easybatch.core.record.Record;
 import org.slf4j.Logger;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +43,13 @@ import static hu.juzraai.proxymanager.cli.GetCommand.Test.AUTO;
 import static hu.juzraai.proxymanager.cli.GetCommand.Test.NONE;
 
 /**
+ * The core of Proxy Manager, this is the engine which calls proxy list
+ * downloaders, filters, testers using a batch processing pattern. This engine
+ * is called by the <code>get</code> CLI command, it has some options to
+ * customize the processing. {@link ProxyEngine} is a {@link Callable} but it
+ * also extends {@link Thread} so it can be started on a separate thread by
+ * calling <code>start()</code>.
+ *
  * @author Zsolt Jurányi
  */
 public class ProxyEngine extends Thread implements Callable<Void> {
@@ -53,20 +62,43 @@ public class ProxyEngine extends Thread implements Callable<Void> {
 	private final List<BlockingQueue<Record>> queues = new ArrayList<>();
 	private final List<Class<? extends ProxyTester>> testerClasses = new ArrayList<>();
 	private final BlockingQueue<String> output;
-	private ReportGenerator reportGenerator = new ReportGenerator();
+	private final ReportGenerator reportGenerator = new ReportGenerator();
 
-	{
-		// default tester
-		testerClasses.add(ProxyServerPrivacyDotComProxyTester.class);
-	}
-
-	public ProxyEngine(GetCommand params, ProxyDatabase db, boolean cliMode) {
+	/**
+	 * Creates a new instance. Initializes the internal {@link
+	 * ProxyListDownloaderEngine} with the given {@link ProxyDatabase}, and adds
+	 * {@link ProxyServerPrivacyDotComProxyTester} as tester class.
+	 *
+	 * @param params  {@link GetCommand} configuration for input, test mode and
+	 *                filtering
+	 * @param db      {@link ProxyDatabase} to be used to read and store proxy
+	 *                information (source, test results, etc.)
+	 * @param cliMode If <code>true</code>, engine will print result proxies to
+	 *                standard output, otherwise it will put them into a {@link
+	 *                BlockingQueue} initialized in this constructor
+	 */
+	public ProxyEngine(@Nonnull GetCommand params, @Nonnull ProxyDatabase db, boolean cliMode) {
 		this.params = params;
 		this.db = db;
 		this.plde = new ProxyListDownloaderEngine(db);
+		this.testerClasses.add(ProxyServerPrivacyDotComProxyTester.class);
 		this.output = cliMode ? null : new LinkedBlockingQueue<String>();
 	}
 
+	/**
+	 * Firstly it initializes the engine: creates worker jobs and their queues
+	 * then builds master job. Then it starts the engine in a thread pool, and
+	 * wait for threads to finish. Finally it generates a report of the batch
+	 * processing to the log. Additionally if <code>cliMode</code> was set to
+	 * <code>false</code> in the constructor, it sends <code>POISON_RECORD</code>
+	 * to the output queue.
+	 *
+	 * @return Returns <code>null</code>
+	 * @throws Exception
+	 * @see #createMasterJob()
+	 * @see #createWorker()
+	 */
+	@CheckForNull
 	@Override
 	public Void call() throws Exception {
 
@@ -102,6 +134,16 @@ public class ProxyEngine extends Thread implements Callable<Void> {
 		return null;
 	}
 
+	/**
+	 * Builds the master job which reads IP:PORT list from the selected input,
+	 * filters for valid IP:PORT strings, converts them to {@link
+	 * ProxyTestInfo}, loads their metadata from the database, then dispatches
+	 * them to workers.
+	 *
+	 * @return The master job
+	 * @see #createReader()
+	 */
+	@Nonnull
 	protected Job createMasterJob() {
 		return JobBuilder.aNewJob()
 				.silentMode(true)
@@ -115,6 +157,18 @@ public class ProxyEngine extends Thread implements Callable<Void> {
 				.build();
 	}
 
+	/**
+	 * Creates the {@link RecordReader} for the master job according to {@link
+	 * GetCommand}'s <code>input</code> field. If input mode is
+	 * <code>CRAWL</code> it will call {@link ProxyListDownloaderEngine} first
+	 * and passes the result to the instantiated reader.
+	 *
+	 * @return An {@link StdinReader} if input mode is <code>STDIN</code>, or
+	 * {@link StringIterableReader} containing crawled proxy list if input mode
+	 * is <code>CRAWL</code> or {@link ProxyDatabaseReader} if input mode is
+	 * <code>DB</code>
+	 */
+	@Nonnull
 	protected RecordReader createReader() {
 		switch (params.getInput()) {
 			case STDIN:
@@ -126,9 +180,23 @@ public class ProxyEngine extends Thread implements Callable<Void> {
 			case DB:
 				return new ProxyDatabaseReader(db);
 		}
-		return null;
+		throw new UnsupportedOperationException("Unhandled input mode: " + params.getInput());
 	}
 
+	/**
+	 * Firstly it creates the input queue for the worker then it builds the
+	 * worker job which reads from it. If test mode set in {@link GetCommand} is
+	 * not <code>NONE</code>, it instantiates all tester classes, adds them to
+	 * the processor chain in {@link ProxyTester} processors and also adds a
+	 * {@link ProxyDatabaseWriter} object as writer to store test results. Adds
+	 * {@link WorkingProxyFilter} and if <code>anon</code> is <code>true</code>,
+	 * adds also an {@link AnonProxyFilter}. If <code>cliMode</code> was
+	 * <code>true</code>, adds {@link StdoutProxyWriter}, otherwise adds {@link
+	 * BlockingQueueProxyWriter} which will write into the output queue.
+	 *
+	 * @return The worker job
+	 */
+	@Nonnull
 	protected Job createWorker() {
 		BlockingQueue<Record> q = new LinkedBlockingQueue<>();
 		queues.add(q);
@@ -176,36 +244,60 @@ public class ProxyEngine extends Thread implements Callable<Void> {
 		return builder.build();
 	}
 
+	/**
+	 * @return {@link ProxyDatabase} used to read and store proxy information
+	 * (source, test results, etc.)
+	 */
+	@Nonnull
 	public ProxyDatabase getDb() {
 		return db;
 	}
 
+	/**
+	 * @return The output queue if <code>cliMode</code> was <code>false</code>,
+	 * or <code>null</code> otherwise. The output queue is a {@link
+	 * BlockingQueue} of IP:PORT strings.
+	 */
 	@CheckForNull
 	public BlockingQueue<String> getOutput() {
 		return output;
 	}
 
+	/**
+	 * @return {@link GetCommand} configuration for input, test mode and
+	 * filtering
+	 */
+	@Nonnull
 	public GetCommand getParams() {
 		return params;
 	}
 
+	/**
+	 * @return The list of proxy downloaders (or crawlers) used to fetch proxy
+	 * lists when <code>CRAWL</code> is set as input source
+	 */
+	@Nonnull
 	public List<ProxyListDownloaderTask> getProxyListDownloaders() {
 		return plde.getCrawlers();
 	}
 
-	public ReportGenerator getReportGenerator() {
-		return reportGenerator;
-	}
-
-	public void setReportGenerator(ReportGenerator reportGenerator) {
-		this.reportGenerator = reportGenerator;
-	}
-
+	/**
+	 * @return The list of {@link ProxyTester} classes which are instantiated at
+	 * worker job creation if test mode is not <code>NONE</code>
+	 */
+	@Nonnull
 	public List<Class<? extends ProxyTester>> getTesterClasses() {
 		return testerClasses;
 	}
 
-	protected ProxyTester instantiateTester(Class<? extends ProxyTester> c) {
+	/**
+	 * Intantiates the given {@link ProxyTester} class.
+	 *
+	 * @return A {@link ProxyTester} instance or <code>null</code> if some error
+	 * occurred
+	 */
+	@CheckForNull
+	protected ProxyTester instantiateTester(@Nonnull Class<? extends ProxyTester> c) {
 		try {
 			return c.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
@@ -214,6 +306,9 @@ public class ProxyEngine extends Thread implements Callable<Void> {
 		return null;
 	}
 
+	/**
+	 * Calls <code>call()</code> method and catches it's exceptions.
+	 */
 	@Override
 	public void run() {
 		try {

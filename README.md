@@ -117,7 +117,7 @@ try (ProxyDatabase db = ProxyDatabase.build()) {
 
 ### Proxy downloader engine
 
-If you need to download proxy lists using more than one crawlers and you need to store proxy source information, you have to use `ProxyListDownloaderEngine`:
+If you need to download proxy lists using more than one crawlers and you need to store proxy source information, you should use `ProxyListDownloaderEngine`:
 
 ```java
 try (ProxyDatabase db = ProxyDatabase.build()) {
@@ -128,7 +128,7 @@ try (ProxyDatabase db = ProxyDatabase.build()) {
 	// you can override default crawler list:
 	// List<ProxyListDownloaderTask> crawlers = plde.getCrawlers();
 	
-	// get IP:PORT set using 10 threads:
+	// run crawlers using 10 threads then get IP:PORT list
 	Set<String> proxies = plde.fetchProxyList(10);
 	
 	// ...process proxy list...
@@ -156,7 +156,7 @@ try (ProxyDatabase db = ProxyDatabase.build()) {
 	// false as 3rd argument tells engine not to print proxies
 	// to stdin, but put them into a queue
 	
-	 // run the engine and wait for finish
+	// run the engine and wait for finish
 	pe.call();
 	
 	// process output
@@ -170,7 +170,7 @@ try (ProxyDatabase db = ProxyDatabase.build()) {
 }
 ```
 
-The engine puts `POISON_RECORD` after the last result proxy to indicate the end of the list. It's needed because the output is in fact is a `BlockingQueue` which does not have an *end*. :)
+The engine puts `POISON_RECORD` after the last result proxy to indicate the end of the list. It's needed because in fact the output is a `BlockingQueue` which does not have an *end*. :)
  
 And this way, you don't need to wait for engine to finish, you can start processing earlier:
 
