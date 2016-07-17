@@ -1,6 +1,8 @@
 package hu.juzraai.proxymanager.data;
 
 /**
+ * This class holds database table names as constants.
+ *
  * @author Zsolt Jurányi
  */
 public class TableNames {

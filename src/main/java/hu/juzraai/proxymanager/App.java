@@ -20,13 +20,8 @@ import java.io.File;
  */
 public class App {
 
-	// TODO ? Proxy.notWorkingSince
 	// TODO ? crawling: do not fetch a proxy site more than one in a minute! (ProxyListInfo.lastFetched)
-	// TODO site stat
-	// query db, generate ProxyListInfo
-	// we can query new proxies from last crawl: firstFetched = lastFetched = MAX(lastFetched)
-
-	// TODO checkfornull, nonnull
+	// TODO ? we can query new proxies from last crawl: firstFetched = lastFetched = MAX(lastFetched)
 
 	public static void main(String[] args) throws Exception {
 

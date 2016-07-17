@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.concurrent.BlockingQueue;
+
 /**
  * @author Zsolt Jurányi
  */
@@ -29,20 +31,13 @@ public class TempTest {
 			e.getProxyListDownloaders().clear();
 			e.getProxyListDownloaders().add(new ProxyNovaDotComPLD());
 			System.out.println("start");
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						e.call();
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
-				}
-			}).start();
+			e.start();
 			System.out.println("results");
 			if (null != e.getOutput()) {
+				BlockingQueue<String> q = e.getOutput();
 				String p = null;
-				while (!ProxyEngine.POISON_RECORD.equals((p = e.getOutput().take()))) {
+				while (!ProxyEngine.POISON_RECORD.equals(p)) {
+					p = q.take();
 					System.out.println("- " + p);
 				}
 			}

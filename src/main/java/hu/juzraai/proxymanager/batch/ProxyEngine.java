@@ -43,7 +43,7 @@ import static hu.juzraai.proxymanager.cli.GetCommand.Test.NONE;
 /**
  * @author Zsolt Jurányi
  */
-public class ProxyEngine implements Callable<Void> {
+public class ProxyEngine extends Thread implements Callable<Void> {
 
 	public static final String POISON_RECORD = "";
 	private static final Logger L = LoggerFactory.getLogger(ProxyEngine.class);
@@ -212,5 +212,14 @@ public class ProxyEngine implements Callable<Void> {
 			L.error("Failed to instantiate tester class, removing from list: {}", c.getName());
 		}
 		return null;
+	}
+
+	@Override
+	public void run() {
+		try {
+			call();
+		} catch (Exception e) {
+			L.error("Engine threw exception", e);
+		}
 	}
 }

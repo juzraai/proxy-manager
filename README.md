@@ -47,13 +47,13 @@ According to my tests there are an average of **10 new proxy comes in each minut
 
 
 
-**Syntax:**
+### Syntax
 
 `$ java -jar proxy-manager-VERSION.jar [global options] [command] [command options]`
 
 
 
-**Global options:**
+### Global options
 
 Short            | Long                    | Description
 -----------------|-------------------------|------------
@@ -61,7 +61,7 @@ Short            | Long                    | Description
 
 
 
- **Commands:**
+ ### Commands
 
  Name   | Description
  -------|------------
@@ -70,7 +70,7 @@ Short            | Long                    | Description
 
 
 
- **Options of `get`:**
+ ### Options of `get`
 
  Short            | Long                    | Description
  -----------------|-------------------------|------------
@@ -85,11 +85,109 @@ Short            | Long                    | Description
 
 
 
-**Dependency**
+### Dependency
 
-You can add **Proxy Manager** as dependency using [JitPack.io](https://jitpack.io/#juzraai/toolbox). Follow the link to get information on how to do this, click on the green *"Get it"* button besides the latest version and scroll down to code snippets.
+You can add ***Proxy Manager*** as dependency using [JitPack.io](https://jitpack.io/#juzraai/toolbox). Follow the link to get information on how to do this, click on the green *"Get it"* button besides the latest version and scroll down to code snippets.
 
-*(TODO code samples)*
+
+
+### Proxy list crawlers
+
+Crawlers are located in `hu.juzraai.proxymanager.fetch` package and their class names have `*PLD` suffix. All crawler is a `Callable<Set<String>>`, they return proxies as a set of IP:PORT strings.
+
+You can use them separately anytime without any configuration, e.g.:
+
+```java
+Set<String> proxies = new FreeProxyListsDotComPLD().call();
+```
+
+
+
+### Proxy database
+
+If you need to use the proxy engine or the proxy downloader engine, you need to set up the database first:
+
+```java
+try (ProxyDatabase db = ProxyDatabase.build()) {
+	// call engine
+}
+```
+
+### Proxy downloader engine
+
+If you need to download proxy lists using more than one crawlers and you need to store proxy source information, you have to use `ProxyListDownloaderEngine`:
+
+```java
+try (ProxyDatabase db = ProxyDatabase.build()) {
+	
+	// pass db to new downloader engine:
+	ProxyListDownloaderEngine plde = new ProxyListDownloaderEngine(db);
+	
+	// you can override default crawler list:
+	// List<ProxyListDownloaderTask> crawlers = plde.getCrawlers();
+	
+	// get IP:PORT set using 10 threads:
+	Set<String> proxies = plde.fetchProxyList(10);
+	
+	// ...process proxy list...
+}
+```
+
+### Proxy engine
+
+If you also need to test proxies you should use `ProxyEngine`.
+
+
+```java
+GetCommand conf = new GetCommand(); // see CLI `get` command
+conf.setInput(GetCommand.Input.CRAWL); // we want to crawl
+conf.setTest(GetCommand.Test.AUTO); // test if necessary
+conf.setAnon(true); // need only anonymous proxies
+conf.setThreads(10); // process using 10 threads
+
+try (ProxyDatabase db = ProxyDatabase.build()) {
+	
+	// initialize engine:
+	ProxyEngine pe = new ProxyEngine(conf, db, false);
+	// false as 3rd argument tells engine not to print proxies
+	// to stdin, but put them into a queue
+	
+	 // run the engine and wait for finish
+	pe.call();
+	
+	// process output
+	if (null != pe.getOutput()) { // null safety
+		for(String proxy : pe.getOutput()) {
+			if (!ProxyEngine.POISON_RECORD.equals(proxy)) {
+				// ...process working, anonymous proxy...
+			}
+		}
+	}
+}
+```
+
+The engine puts `POISON_RECORD` after the last result proxy to indicate the end of the list. It's needed because the output is in fact is a `BlockingQueue` which does not have an *end*. :)
+ 
+And this way, you don't need to wait for engine to finish, you can start processing earlier:
+
+```java
+try (ProxyDatabase db = ProxyDatabase.build()) {
+	ProxyEngine pe = new ProxyEngine(conf, db, false);
+	
+	// start as a new thread
+	pe.start(); // ProxyEngine extends Thread ;)
+	
+	// process output while engine is running
+	if (null != pe.getOutput()) { // null safety
+		BlockingQueue<String> q = pe.getOutput();
+		String proxy = null;
+		while (!ProxyEngine.POISON_RECORD.equals(proxy)) {
+			proxy = q.take(); // read from queue (waits for element)
+			// ...process working, anonymous proxy...
+		}
+	}	
+}
+```
 
 
 
