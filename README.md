@@ -47,6 +47,18 @@ According to my tests there are an average of **10 new proxy comes in each minut
 
 
 
+### Building from source
+
+If you have the source but not the JAR you can create the stand-alone version yourself using *Maven*.
+
+Run this command while you are in the root of the source directory:
+
+`$ mvn clean compile assembly:single`
+
+Then you'll get the JAR: `target/proxy-manager-VERSION-jar-with-dependencies.jar`
+
+
+
 ### Syntax
 
 `$ java -jar proxy-manager-VERSION.jar [global options] [command] [command options]`

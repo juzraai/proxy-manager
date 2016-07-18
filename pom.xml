@@ -111,13 +111,6 @@
 						</manifest>
 					</archive>
 				</configuration>
-				<!-- Turn this off, 'mvn package' will create JAR with deps. -->
-				<executions>
-					<execution>
-						<id>default-jar</id>
-						<phase>never</phase>
-					</execution>
-				</executions>
 			</plugin>
 
 			<plugin>
@@ -136,14 +129,6 @@
 					</descriptorRefs>
 					<finalName>proxyman-${project.version}</finalName>
 				</configuration>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
