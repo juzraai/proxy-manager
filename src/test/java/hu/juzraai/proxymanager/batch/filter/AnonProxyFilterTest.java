@@ -19,12 +19,12 @@ public class AnonProxyFilterTest {
 	}
 
 	@Test
-	public void shouldReturNullForNonAnon() {
+	public void shouldReturnNullForNonAnon() {
 		assertNull(new AnonProxyFilter().processRecord(proxyRecordWithAnon(false)));
 	}
 
 	@Test
-	public void shouldReturNullForUnknownAnon() {
+	public void shouldReturnNullForUnknownAnon() {
 		assertNull(new AnonProxyFilter().processRecord(proxyRecordWithAnon(null)));
 	}
 

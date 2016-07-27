@@ -19,12 +19,12 @@ public class WorkingProxyFilterTest {
 	}
 
 	@Test
-	public void shouldReturNullForNonWorking() {
+	public void shouldReturnNullForNonWorking() {
 		assertNull(new WorkingProxyFilter().processRecord(proxyRecordWithWorking(false)));
 	}
 
 	@Test
-	public void shouldReturNullForUnknownWorking() {
+	public void shouldReturnNullForUnknownWorking() {
 		assertNull(new WorkingProxyFilter().processRecord(proxyRecordWithWorking(null)));
 	}
 

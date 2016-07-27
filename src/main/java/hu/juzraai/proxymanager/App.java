@@ -65,8 +65,8 @@ public class App {
 					new ProxyListStatsGenerator(stat, db).call();
 				}
 
-			} else {
-				jc.usage();
+			} else { // cmd is null or legit but unhandled
+				throw new ParameterException("Unhandled command: " + cmd);
 			}
 		} catch (ParameterException e) {
 			System.out.println("ERROR: " + e.getMessage() + "\n");
