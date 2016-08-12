@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<name>proxy-manager</name>
-	<url>http://maven.apache.org</url>
+	<url>http://github.com/juzraai/proxy-manager</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -1,0 +1,10 @@
+{
+    "JAVA": {
+        /*
+            I use POJO's for database tables.
+            It's not a problem if they contain more
+            fields than the average.
+        */
+        "TOO_MANY_IVARS": [10, 12, 16, 20]
+    }
+}

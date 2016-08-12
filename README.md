@@ -1,4 +1,4 @@
-# juzraai's Proxy Manager [![Release](https://jitpack.io/v/juzraai/proxy-manager.svg)](https://jitpack.io/#juzraai/proxy-manager) [![Build status](https://travis-ci.org/juzraai/proxy-manager.svg)](https://travis-ci.org/juzraai/proxy-manager)
+# juzraai's Proxy Manager [![Release](https://jitpack.io/v/juzraai/proxy-manager.svg)](https://jitpack.io/#juzraai/proxy-manager) [![Build Status](https://travis-ci.org/juzraai/proxy-manager.svg?branch=master)](https://travis-ci.org/juzraai/proxy-manager) [![codebeat badge](https://codebeat.co/badges/70bb800d-6c13-4ffe-922d-f787b1223b6b)](https://codebeat.co/projects/github-com-juzraai-proxy-manager)
 
 *Fetch, test &amp; use ip:port proxy lists* **[in development]**
 
